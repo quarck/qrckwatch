@@ -1,5 +1,11 @@
 #include "pebble.h"
 
+#include "protocol.h"
+
+enum {
+	CHARGE_POLL_INTERVAL = 5 // every 5 mins
+};
+
 Window *window;
 TextLayer *text_date_layer;
 TextLayer *text_time_layer;
@@ -14,6 +20,15 @@ TextLayer *phone_batt_layer;
 TextLayer *watch_batt_layer;
 
 int32_t notifications_bitmask = 0;
+int8_t phone_charge_level = -1; // values outside of 0...100 are interpreted as N/A
+int8_t phone_is_charging = 0;
+int8_t watch_charge_level = -1; // values outside of 0...100 are ... N/A
+
+uint8_t first_iteration = 1;
+
+void send_request(uint8_t code);
+void display_notifications();
+void display_indicators();
 
 void top_line_layer_update_callback(Layer * layer, GContext * ctx)
 {
@@ -36,141 +51,157 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 
 	char *time_format;
 
-	if (!tick_time) {
+	if (!tick_time) 
+	{
 		time_t now = time(NULL);
 		tick_time = localtime(&now);
 	}
-	
+
 	// TODO: Only update the date when it's changed.
 	strftime(date_text, sizeof(date_text), "%a  %B %e", tick_time);
 	text_layer_set_text(text_date_layer, date_text);
 
-	if (clock_is_24h_style()) {
+	if (clock_is_24h_style()) 
 		time_format = "%R";
-	} else {
+	else 
 		time_format = "%I:%M";
-	}
 
 	strftime(time_text, sizeof(time_text), time_format, tick_time);
 
 	// Kludge to handle lack of non-padded hour format string
 	// for twelve hour clock.
-	if (!clock_is_24h_style() && (time_text[0] == '0')) {
+	if (!clock_is_24h_style() && (time_text[0] == '0')) 
+	{
 		memmove(time_text, &time_text[1], sizeof(time_text) - 1);
 	}
 
 	text_layer_set_text(text_time_layer, time_text);
 
-	text_layer_set_text(notifications_layer, "NO NOTIFICATIONS");
+	display_indicators();
+	
+	display_notifications();
+
+	if (((tick_time->tm_min % CHARGE_POLL_INTERVAL) == 0) 
+		|| first_iteration )
+	{
+		BatteryChargeState st = battery_state_service_peek();
+
+      		send_request(MSG_REQUEST_ALL);
+
+		first_iteration = 0;
+	}
+}
+
+void display_notifications()
+{
+	static char notifications[128];
+
+	memset(notifications, 0, sizeof(notifications));
+	
+	if (notifications_bitmask & NOTIFICATION_CALENDAR)
+		strcat(notifications, "[CAL] "); // 6
+
+	if (notifications_bitmask & NOTIFICATION_GMAIL)
+		strcat(notifications, "[GMAIL] "); // 8, 14
+
+	if (notifications_bitmask & NOTIFICATION_EMAIL)
+		strcat(notifications, "[EMAIL] "); // 8, 22 
+
+	if (notifications_bitmask & NOTIFICATION_PHONE)
+		strcat(notifications, "[PHONE] "); // 8, 30
+
+	if (notifications_bitmask & NOTIFICATION_MESSAGES)
+		strcat(notifications, "[SMS] "); // 6, 36
+
+	if (notifications_bitmask & NOTIFICATION_SKYPE)
+		strcat(notifications, "[SKYPE] "); // 8, 44
+
+	if (notifications_bitmask & NOTIFICATION_GOOGLEHANGOUTS)
+		strcat(notifications, "[MSG] "); // 6, 50
+
+	if (notifications_bitmask & NOTIFICATION_GOOGLEPLUS)
+		strcat(notifications, "[G+] "); // 5, 55
+
+	if (notifications_bitmask & NOTIFICATION_VOIP)
+		strcat(notifications, "[VOIP] "); // 7, 62
+
+	if (notifications_bitmask & NOTIFICATION_IM)
+		strcat(notifications, "[IM] "); // 5, 67
+
+	if (notifications_bitmask & NOTIFICATION_FACEBOOK)
+		strcat(notifications, "[FB] "); // 5, 72
+
+	if (notifications_bitmask & NOTIFICATION_LINKEDIN)
+		strcat(notifications, "[LN] "); // 5, 77
+
+	if (notifications_bitmask & NOTIFICATION_VK)
+		strcat(notifications, "[VK] "); // 5, 83
+
+	if (notifications_bitmask & NOTIFICATION_INSTGRAM)
+		strcat(notifications, "[INSTGRAM] "); // 11, 94
+
+	if (notifications_bitmask & NOTIFICATION_UNKNOWN)
+		strcat(notifications, "[NOTIFICATIONS] ");
+
+	text_layer_set_text(notifications_layer, notifications);
+}
+
+void display_indicators()
+{
+	static char watch_charge_text[] = "xxx  ";
+	static char phone_charge_text[] = "xxx  ";
+
+	if (phone_charge_level >= 0 && phone_charge_level <= 100)
+		snprintf(phone_charge_text, sizeof(phone_charge_text), "%d%c", (int)phone_charge_level, phone_is_charging ? '+': ' ');
+	else
+		strncpy(phone_charge_text, "N/A", sizeof(phone_charge_text));
+
+	if (watch_charge_level >= 0 && watch_charge_level <= 100)
+		snprintf(watch_charge_text, sizeof(watch_charge_text), "%d", (int)watch_charge_level);
+	else
+		strncpy(watch_charge_text, "N/A", sizeof(watch_charge_text));
 	
 	text_layer_set_text(bt_status_layer, "NO CONN");
-	text_layer_set_text(phone_batt_layer, "N/A");
-	text_layer_set_text(watch_batt_layer, "N/A");
-}
-
-/*void notification_newNotification(DictionaryIterator *received)
-{
-	set_busy_indicator(true);
-
-	int32_t id = dict_find(received, 1)->value->int32;
-
-	uint8_t* configBytes = dict_find(received, 2)->value->data;
-
-	uint8_t flags = configBytes[1];
-	bool inList = (flags & 0x02) != 0;
-
-	Notification* notification = notification_find_notification(id);
-	if (notification == NULL)
-	{
-		notification = notification_add_notification();
-
-		if (!inList)
-		{
-			if (config_vibrateMode > 0 && (!config_dontVibrateWhenCharging || !battery_state_service_peek().is_charging))
-			{
-				if (numOfNotifications == 1 && config_vibrateMode == 1)
-					vibes_long_pulse();
-				else
-					vibes_short_pulse();
-
-				vibrating = true;
-				app_timer_register(700, vibration_stopped, NULL);
-			}
-
-			if (config_lightScreen)
-				light_enable_interaction();
-
-			appIdle = true;
-			elapsedTime = 0;
-		}
-	}
-
-	notification->id = id;
-	notification->inList = inList;
-	notification->dismissable = (flags & 0x01) != 0;
-	notification->numOfChunks = dict_find(received, 4)->value->uint8;
-
-	strcpy(notification->title, dict_find(received, 5)->value->cstring);
-	strcpy(notification->subTitle, dict_find(received, 6)->value->cstring);
-	notification->text[0] = 0;
-
-	if (notification->inList)
-	{
-		for (int i = 0; i < numOfNotifications; i++)
-		{
-
-			Notification entry = notificationData[notificationPositions[i]];
-			if (entry.id == notification->id)
-				continue;
-
-			if (entry.inList)
-			{
-				notification_remove_notification(i, false);
-				i--;
-			}
-		}
-	}
-
-	if (notification->numOfChunks == 0)
-	{
-		notification_sendNextNotification();
-	}
-	else
-	{
-		notification_sendMoreText(notification->id, 0);
-	}
-
-	if (numOfNotifications == 1)
-		refresh_notification();
-	else if (config_autoSwitchNotifications)
-	{
-		pickedNotification = numOfNotifications - 1;
-		refresh_notification();
-	}
-}
-*/
-
-void update_notifications()
-{
-	text_layer_set_text(notifications_layer, "NO NOTIFICATIONS");
+	text_layer_set_text(phone_batt_layer, phone_charge_text);
+	text_layer_set_text(watch_batt_layer, watch_charge_text);
 }
 
 void received_data(DictionaryIterator *received, void *context) 
 {
 	uint8_t packetId = dict_find(received, 0)->value->uint8;
 
-	if (packetId == 0) // notifications bitmask
+	if (packetId == MSG_NOTIFICATIONS_BITMASK) // notifications bitmask
 	{
 		notifications_bitmask = dict_find(received, 1)->value->int32;
+		display_notifications();
 	}
-	else if (packetId == 1) // battery charge level
+	else if (packetId == MSG_CHARGE_LEVEL) // battery charge level
 	{
+		phone_charge_level = dict_find(received, 1)->value->int32;
+		display_indicators();
 	}
+}
+
+void watch_battery_changed(BatteryChargeState charge)
+{
+	phone_charge_level = charge.charge_percent;
+	phone_is_charging = charge.is_charging;
+
+	display_indicators();
+}
+
+void send_request(uint8_t code)
+{
+	DictionaryIterator *iterator = NULL;
+	app_message_outbox_begin(&iterator);
+	dict_write_uint8(iterator, 0, code);
+	app_message_outbox_send();
 }
 
 void handle_deinit(void)
 {
 	tick_timer_service_unsubscribe();
+	battery_state_service_unsubscribe();
 }
 
 void handle_init(void)
@@ -187,7 +218,7 @@ void handle_init(void)
 	text_layer_set_background_color(notifications_layer, GColorClear);
 	text_layer_set_font(notifications_layer,
 			    fonts_get_system_font
-			    (FONT_KEY_GOTHIC_14));
+			    (FONT_KEY_GOTHIC_18));
 	layer_add_child(window_layer, text_layer_get_layer(notifications_layer));
 
 	// Date layer
@@ -231,7 +262,7 @@ void handle_init(void)
 	layer_add_child(window_layer, text_layer_get_layer(bt_status_layer));
 
 	// Phone battery layer 
-	phone_batt_layer = text_layer_create(GRect(80, 152, 28, 14));
+	phone_batt_layer = text_layer_create(GRect(114, 152, 28, 14));
 	text_layer_set_text_color(phone_batt_layer, GColorWhite);
 	text_layer_set_background_color(phone_batt_layer, GColorClear);
 	text_layer_set_font(phone_batt_layer,
@@ -240,7 +271,7 @@ void handle_init(void)
 	layer_add_child(window_layer, text_layer_get_layer(phone_batt_layer));
 
 	// Watch battery layer
-	watch_batt_layer = text_layer_create(GRect(114, 152, 28, 14));
+	watch_batt_layer = text_layer_create(GRect(80, 152, 28, 14));
 	text_layer_set_text_color(watch_batt_layer, GColorWhite);
 	text_layer_set_background_color(watch_batt_layer, GColorClear);
 	text_layer_set_font(watch_batt_layer,
@@ -248,16 +279,18 @@ void handle_init(void)
 			    (FONT_KEY_GOTHIC_14));
 	layer_add_child(window_layer, text_layer_get_layer(watch_batt_layer));
 
+	// setup communication
+	app_message_register_inbox_received(received_data);
+	app_message_open(124, 50);
+
+	// battery state service 
+	battery_state_service_subscribe(watch_battery_changed);
 
 	// Time callback setup
 	tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
 	handle_minute_tick(NULL, MINUTE_UNIT);
 
-	// setup communication
-	app_message_register_inbox_received(received_data);
-	app_message_open(124, 50);
-
-	app_comm_set_sniff_interval(SNIFF_INTERVAL_NORMAL);
+	watch_battery_changed(battery_state_service_peek());
 }
 
 int main(void)
