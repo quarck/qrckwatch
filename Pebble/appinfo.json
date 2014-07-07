@@ -1,0 +1,24 @@
+{
+  "uuid": "0b633775-2a83-4a28-9d0f-2c06ad154251",
+  "shortName": "qrcktime",
+  "longName": "qrcktime",
+  "companyName": "QRCK",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
+  "watchapp": {
+    "watchface": true
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": [
+      {
+        "menuIcon": true,
+        "type": "png",
+        "name": "IMAGE_MENU_ICON",
+        "file": "images/menu_icon_simplicity.png"
+      }
+    ]
+  }
+}
