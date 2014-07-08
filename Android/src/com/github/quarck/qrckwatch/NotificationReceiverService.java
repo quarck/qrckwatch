@@ -42,13 +42,28 @@ public class NotificationReceiverService extends NotificationListenerService
 
 	public static int notificationsMask = 0;
 	
+	public static boolean alarmScheduled = false;
+	
 	private static void sendBitmaskToPebble(Context ctx, int bitmask)
 	{
-		PebbleDictionary data = new PebbleDictionary();
-		data.addUint8(0, (byte)0);
-		data.addInt32(1, bitmask);
-
-		PebbleKit.sendDataToPebble(ctx, DataReceiver.pebbleAppUUID, data);
+		Lw.d(TAG, "sending bitmask " + bitmask);
+		
+		try 
+		{
+			PebbleDictionary data = new PebbleDictionary();
+			data.addUint8(0, (byte)Protocol.MsgNotificationsBitmask);
+			data.addInt32(1, bitmask);	
+			PebbleKit.sendDataToPebble(ctx, DataReceiver.pebbleAppUUID, data);
+		}
+		catch (Exception ex)
+		{
+			Lw.d(TAG, "Exception while sending data to pebble");
+		}
+	}
+	
+	public static void sendBitmaskToPebble(Context ctx)
+	{
+		sendBitmaskToPebble(ctx, notificationsMask);
 	}
 	
 	@Override
@@ -65,9 +80,19 @@ public class NotificationReceiverService extends NotificationListenerService
 		super.onDestroy();
 	}
 
+	public static void checkAlarm(Context ctx)
+	{
+		if (!alarmScheduled)
+		{
+			Alarm.setAlarmMillis(ctx, 5*60*1000);
+			alarmScheduled = true;
+		}	
+	}
+	
 	@Override
 	public IBinder onBind(Intent intent)
 	{
+		checkAlarm(this);
 		return super.onBind(intent);
 	}
 	
@@ -80,6 +105,8 @@ public class NotificationReceiverService extends NotificationListenerService
 			Lw.d(TAG, "Watch is not connected, returning");
 			return;
 		}
+
+		checkAlarm(this);
 
 		StatusBarNotification[] notifications = null;
 
@@ -119,11 +146,8 @@ public class NotificationReceiverService extends NotificationListenerService
 			Lw.e(TAG, "Can't get list of notifications. WE HAVE NO PERMISSION!! ");
 		}
 		
-		if (notificationsMask != newBitmask)
-		{
-			notificationsMask = newBitmask;
-			sendBitmaskToPebble(this, notificationsMask);
-		}
+		notificationsMask = newBitmask;
+		sendBitmaskToPebble(this, notificationsMask);
 	}
 
 	@Override
@@ -142,31 +166,10 @@ public class NotificationReceiverService extends NotificationListenerService
 
 	public static void gotPacketFromPebble(Context context, int id, PebbleDictionary data)
 	{
-		boolean sendChargeLevel = false;
-		boolean sendNotifications = false;
-		
-		switch (id)
+		if (id == Protocol.MsgRequestAll)
 		{
-		case Protocol.MsgRequestAll:
-			sendChargeLevel = true;
-			sendNotifications = true;
-			break;
-		case Protocol.MsgRequestChargeLevel:
-			sendChargeLevel = true;
-			break;
-		case Protocol.MsgRequestNotificationsBitmask:
-			sendNotifications = true;
-			break;
-		}
-
-		if (sendChargeLevel)
-		{
-			//
-		}
-		
-		if (sendNotifications)
-		{
-			sendBitmaskToPebble(context, notificationsMask);
+			sendBitmaskToPebble(context);
+			// send charge level
 		}
 	}
 }

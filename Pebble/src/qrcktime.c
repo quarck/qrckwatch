@@ -24,11 +24,13 @@ int8_t phone_charge_level = -1; // values outside of 0...100 are interpreted as 
 int8_t phone_is_charging = 0;
 int8_t watch_charge_level = -1; // values outside of 0...100 are ... N/A
 
-uint8_t first_iteration = 1;
+int8_t bt_disconnected = 1;
+time_t last_bt_update = 0;
 
 void send_request(uint8_t code);
 void display_notifications();
 void display_indicators();
+
 
 void top_line_layer_update_callback(Layer * layer, GContext * ctx)
 {
@@ -51,9 +53,10 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 
 	char *time_format;
 
+	time_t now = time(NULL);
+
 	if (!tick_time) 
 	{
-		time_t now = time(NULL);
 		tick_time = localtime(&now);
 	}
 
@@ -77,19 +80,11 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 
 	text_layer_set_text(text_time_layer, time_text);
 
+	bt_disconnected = (now - last_bt_update > 390) ? 1 : 0; // 6.5 min
+
 	display_indicators();
 	
 	display_notifications();
-
-	if (((tick_time->tm_min % CHARGE_POLL_INTERVAL) == 0) 
-		|| first_iteration )
-	{
-		BatteryChargeState st = battery_state_service_peek();
-
-      		send_request(MSG_REQUEST_ALL);
-
-		first_iteration = 0;
-	}
 }
 
 void display_notifications()
@@ -160,8 +155,9 @@ void display_indicators()
 		snprintf(watch_charge_text, sizeof(watch_charge_text), "%d", (int)watch_charge_level);
 	else
 		strncpy(watch_charge_text, "N/A", sizeof(watch_charge_text));
-	
-	text_layer_set_text(bt_status_layer, "NO CONN");
+
+	text_layer_set_text(bt_status_layer, bt_disconnected ? "NO CONN" : "");
+
 	text_layer_set_text(phone_batt_layer, phone_charge_text);
 	text_layer_set_text(watch_batt_layer, watch_charge_text);
 }
@@ -169,6 +165,8 @@ void display_indicators()
 void received_data(DictionaryIterator *received, void *context) 
 {
 	uint8_t packetId = dict_find(received, 0)->value->uint8;
+
+	last_bt_update = time(NULL);
 
 	if (packetId == MSG_NOTIFICATIONS_BITMASK) // notifications bitmask
 	{
@@ -289,6 +287,9 @@ void handle_init(void)
 	// Time callback setup
 	tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
 	handle_minute_tick(NULL, MINUTE_UNIT);
+      	
+	// request everything. 
+	send_request(MSG_REQUEST_ALL);
 
 	watch_battery_changed(battery_state_service_peek());
 }

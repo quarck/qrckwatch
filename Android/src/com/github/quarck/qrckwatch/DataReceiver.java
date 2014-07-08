@@ -22,6 +22,8 @@ public class DataReceiver extends BroadcastReceiver
 	
 	public void receiveData(final Context context, final int transactionId, final PebbleDictionary data)
 	{
+		NotificationReceiverService.checkAlarm(context);
+		
 		PebbleKit.sendAckToPebble(context, transactionId);
 
 		int id = data.getUnsignedInteger(0).intValue() & 0xFF;

@@ -5,9 +5,8 @@ enum Message
 {
 	MSG_NOTIFICATIONS_BITMASK 	= 0, 
 	MSG_CHARGE_LEVEL	= 1,
+	MSG_WEATHER_ALERT	= 2,
 	MSG_REQUEST_ALL		= 100, // ask to send all the possible updates - sent on the start of the watchface
-	MSG_REQUEST_NOTIFICATIONS_BITMASK = 101, 
-	MSG_REQUEST_CHARGE_LEVEL	= 102
 };
 
 enum Notifications 

@@ -25,32 +25,54 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package com.github.quarck.qrckwatch;
 
-import android.util.Log;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 
-public class Lw
+public class Alarm extends BroadcastReceiver
 {
-	private final static String TAG_PREFIX = "qrckWatch ";
+	public static final String TAG = "Alarm";
 
-	public static void d(String TAG, String message)
+	public Alarm()
 	{
-		Log.d(TAG_PREFIX + TAG, "" + System.currentTimeMillis() + " " + message);
+		super();
+	}
+
+	@Override
+	public void onReceive(Context context, Intent intent) // alarm fired
+	{
+		Lw.d(TAG, "Alarm received");
+		
+		NotificationReceiverService.sendBitmaskToPebble(context);
 	}
 	
-	public static void d(String message)
+	public static void setAlarmMillis(Context context, int repeatMillis)
 	{
-		d("<NOTAG>", message);
+		Lw.d(TAG, "Setting alarm with repeation interval " + repeatMillis + " milliseconds");
+		
+		Intent intent = new Intent(context, Alarm.class);
+		PendingIntent pendIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		alarmManager(context).setRepeating(AlarmManager.RTC_WAKEUP, 
+				System.currentTimeMillis() + repeatMillis, repeatMillis, pendIntent);
 	}
 
-	public static void e(String TAG, String message)
+	public static void cancelAlarm(Context context)
 	{
-		Log.e(TAG_PREFIX + TAG, "" + System.currentTimeMillis() + " " + message);
+		Lw.d(TAG, "Cancelling alarm");
+		Intent intent = new Intent(context, Alarm.class);
+		PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, 0);
+
+		alarmManager(context).cancel(sender);
 	}
 
-	public static void e(String message)
+	private static AlarmManager alarmManager(Context context)
 	{
-		e("<NOTAG>", message);
+		return (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 	}
+	
 }
