@@ -24,11 +24,7 @@ public class Service
 			alarmScheduled = true;
 		}	
 	}
-	
-	private static void sendBitmaskToPebble(Context ctx, int bitmask)
-	{
-	}
-	
+		
 	private static int getPhoneChargeLevel(Context context)
 	{
 		IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -69,7 +65,7 @@ public class Service
 	public static void setNotificationsMask(Context context, int newMask)
 	{
 		notificationsMask = newMask;
-		sendBitmaskToPebble(context, notificationsMask);
+		sendUpdateToPebble(context);
 	}
 	
 	public static void gotPacketFromPebble(Context context, PebbleDictionary data)

@@ -34,7 +34,9 @@ import android.os.Bundle;
 public class MainActivity extends Activity
 {
 	private static String TAG = "MainActivity";
-			
+	
+	private boolean shownSecurityPane = false;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -44,10 +46,7 @@ public class MainActivity extends Activity
 		
 		Lw.d(TAG, "onCreateView");
 
-		setContentView(R.layout.activity_main);
-		
-		Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-		startActivity(intent);
+		setContentView(R.layout.activity_main);		
 	}
 	
 	@Override
@@ -55,6 +54,7 @@ public class MainActivity extends Activity
 	{
 		Lw.d(TAG, "onStart()");
 		super.onStart();
+		
 	}
 
 	@Override
@@ -76,5 +76,12 @@ public class MainActivity extends Activity
 	{
 		Lw.d(TAG, "onResume");
 		super.onResume();
+
+		if (!shownSecurityPane)
+		{
+			shownSecurityPane = true;
+			Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+			startActivity(intent);
+		}
 	}
 }
