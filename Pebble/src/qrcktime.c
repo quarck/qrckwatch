@@ -21,13 +21,13 @@ TextLayer *watch_batt_layer;
 
 int32_t notifications_bitmask = 0;
 int8_t phone_charge_level = -1; // values outside of 0...100 are interpreted as N/A
-int8_t phone_is_charging = 0;
+int8_t watch_is_charging = 0;
 int8_t watch_charge_level = -1; // values outside of 0...100 are ... N/A
 
 int8_t bt_disconnected = 1;
 time_t last_bt_update = 0;
 
-void send_request(uint8_t code);
+void send_request();
 void display_notifications();
 void display_indicators();
 
@@ -147,12 +147,12 @@ void display_indicators()
 	static char phone_charge_text[] = "xxx  ";
 
 	if (phone_charge_level >= 0 && phone_charge_level <= 100)
-		snprintf(phone_charge_text, sizeof(phone_charge_text), "%d%c", (int)phone_charge_level, phone_is_charging ? '+': ' ');
+		snprintf(phone_charge_text, sizeof(phone_charge_text), "%d", (int)phone_charge_level);
 	else
 		strncpy(phone_charge_text, "N/A", sizeof(phone_charge_text));
 
 	if (watch_charge_level >= 0 && watch_charge_level <= 100)
-		snprintf(watch_charge_text, sizeof(watch_charge_text), "%d", (int)watch_charge_level);
+		snprintf(watch_charge_text, sizeof(watch_charge_text), "%c%d", (watch_is_charging ? '+':' '), (int)watch_charge_level);
 	else
 		strncpy(watch_charge_text, "N/A", sizeof(watch_charge_text));
 
@@ -164,35 +164,44 @@ void display_indicators()
 
 void received_data(DictionaryIterator *received, void *context) 
 {
-	uint8_t packetId = dict_find(received, 0)->value->uint8;
+	Tuple *entry = NULL;
 
 	last_bt_update = time(NULL);
 
-	if (packetId == MSG_NOTIFICATIONS_BITMASK) // notifications bitmask
+	entry = dict_find(received, ENTRY_NOTIFICATIONS_BITMASK); 
+	if (entry != NULL)
 	{
-		notifications_bitmask = dict_find(received, 1)->value->int32;
+		notifications_bitmask = entry->value->int32;
 		display_notifications();
 	}
-	else if (packetId == MSG_CHARGE_LEVEL) // battery charge level
+	
+	entry = dict_find(received, ENTRY_CHARGE_LEVEL); 
+	if (entry != NULL)
 	{
-		phone_charge_level = dict_find(received, 1)->value->int32;
+		phone_charge_level = entry->value->int32;
 		display_indicators();
+	}
+	
+	entry = dict_find(received, ENTRY_WEATHER_ALERT); 
+	if (entry != NULL)
+	{
+		// will be displaying weather alert here
 	}
 }
 
 void watch_battery_changed(BatteryChargeState charge)
 {
-	phone_charge_level = charge.charge_percent;
-	phone_is_charging = charge.is_charging;
+	watch_charge_level = charge.charge_percent;
+	watch_is_charging = charge.is_charging;
 
 	display_indicators();
 }
 
-void send_request(uint8_t code)
+void send_request()
 {
 	DictionaryIterator *iterator = NULL;
 	app_message_outbox_begin(&iterator);
-	dict_write_uint8(iterator, 0, code);
+	dict_write_uint8(iterator, 100, 0); // some unused code -- we just need to send a 'ping' to app, without any real data
 	app_message_outbox_send();
 }
 
@@ -260,7 +269,8 @@ void handle_init(void)
 	layer_add_child(window_layer, text_layer_get_layer(bt_status_layer));
 
 	// Phone battery layer 
-	phone_batt_layer = text_layer_create(GRect(114, 152, 28, 14));
+	phone_batt_layer = text_layer_create(GRect(80, 152, 28, 14));
+	text_layer_set_text_alignment(phone_batt_layer, GTextAlignmentRight);
 	text_layer_set_text_color(phone_batt_layer, GColorWhite);
 	text_layer_set_background_color(phone_batt_layer, GColorClear);
 	text_layer_set_font(phone_batt_layer,
@@ -269,7 +279,8 @@ void handle_init(void)
 	layer_add_child(window_layer, text_layer_get_layer(phone_batt_layer));
 
 	// Watch battery layer
-	watch_batt_layer = text_layer_create(GRect(80, 152, 28, 14));
+	watch_batt_layer = text_layer_create(GRect(114, 152, 28, 14));
+	text_layer_set_text_alignment(watch_batt_layer, GTextAlignmentRight);
 	text_layer_set_text_color(watch_batt_layer, GColorWhite);
 	text_layer_set_background_color(watch_batt_layer, GColorClear);
 	text_layer_set_font(watch_batt_layer,
@@ -289,7 +300,7 @@ void handle_init(void)
 	handle_minute_tick(NULL, MINUTE_UNIT);
       	
 	// request everything. 
-	send_request(MSG_REQUEST_ALL);
+	send_request();
 
 	watch_battery_changed(battery_state_service_peek());
 }

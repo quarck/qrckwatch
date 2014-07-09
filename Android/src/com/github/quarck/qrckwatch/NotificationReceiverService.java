@@ -27,44 +27,16 @@
 
 package com.github.quarck.qrckwatch;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
 import com.getpebble.android.kit.PebbleKit;
-import com.getpebble.android.kit.util.PebbleDictionary;
 
 public class NotificationReceiverService extends NotificationListenerService
 {
 	public static final String TAG = "Service";
-
-	public static int notificationsMask = 0;
-	
-	public static boolean alarmScheduled = false;
-	
-	private static void sendBitmaskToPebble(Context ctx, int bitmask)
-	{
-		Lw.d(TAG, "sending bitmask " + bitmask);
-		
-		try 
-		{
-			PebbleDictionary data = new PebbleDictionary();
-			data.addUint8(0, (byte)Protocol.MsgNotificationsBitmask);
-			data.addInt32(1, bitmask);	
-			PebbleKit.sendDataToPebble(ctx, DataReceiver.pebbleAppUUID, data);
-		}
-		catch (Exception ex)
-		{
-			Lw.d(TAG, "Exception while sending data to pebble");
-		}
-	}
-	
-	public static void sendBitmaskToPebble(Context ctx)
-	{
-		sendBitmaskToPebble(ctx, notificationsMask);
-	}
 	
 	@Override
 	public void onCreate()
@@ -80,19 +52,10 @@ public class NotificationReceiverService extends NotificationListenerService
 		super.onDestroy();
 	}
 
-	public static void checkAlarm(Context ctx)
-	{
-		if (!alarmScheduled)
-		{
-			Alarm.setAlarmMillis(ctx, 5*60*1000);
-			alarmScheduled = true;
-		}	
-	}
-	
 	@Override
 	public IBinder onBind(Intent intent)
 	{
-		checkAlarm(this);
+		Service.checkAlarm(this);
 		return super.onBind(intent);
 	}
 	
@@ -106,7 +69,7 @@ public class NotificationReceiverService extends NotificationListenerService
 			return;
 		}
 
-		checkAlarm(this);
+		Service.checkAlarm(this);
 
 		StatusBarNotification[] notifications = null;
 
@@ -145,9 +108,8 @@ public class NotificationReceiverService extends NotificationListenerService
 		{
 			Lw.e(TAG, "Can't get list of notifications. WE HAVE NO PERMISSION!! ");
 		}
-		
-		notificationsMask = newBitmask;
-		sendBitmaskToPebble(this, notificationsMask);
+
+		Service.setNotificationsMask(this, newBitmask);
 	}
 
 	@Override
@@ -162,14 +124,5 @@ public class NotificationReceiverService extends NotificationListenerService
 	{
 		Lw.d(TAG, "Notification removed: " + arg0);
 		update(arg0, false);
-	}
-
-	public static void gotPacketFromPebble(Context context, int id, PebbleDictionary data)
-	{
-		if (id == Protocol.MsgRequestAll)
-		{
-			sendBitmaskToPebble(context);
-			// send charge level
-		}
 	}
 }
