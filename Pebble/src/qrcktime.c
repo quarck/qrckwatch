@@ -136,7 +136,7 @@ void display_notifications()
 		strcat(notifications, "[INSTGRAM] "); // 11, 94
 
 	if (notifications_bitmask & NOTIFICATION_UNKNOWN)
-		strcat(notifications, "[NOTIFICATIONS] ");
+		strcat(notifications, "[+++] ");
 
 	text_layer_set_text(notifications_layer, notifications);
 }
@@ -179,7 +179,6 @@ void received_data(DictionaryIterator *received, void *context)
 	if (entry != NULL)
 	{
 		phone_charge_level = entry->value->int32;
-		display_indicators();
 	}
 	
 	entry = dict_find(received, ENTRY_WEATHER_ALERT); 
@@ -187,6 +186,8 @@ void received_data(DictionaryIterator *received, void *context)
 	{
 		// will be displaying weather alert here
 	}
+		
+	display_indicators();
 }
 
 void watch_battery_changed(BatteryChargeState charge)
