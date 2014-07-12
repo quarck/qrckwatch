@@ -10,15 +10,12 @@ import android.os.BatteryManager;
 
 public class PebbleService
 {
-	private static final String TAG = "Service";
+	private static final String TAG = "PebbleService";
 	
 	private static int notificationsMask = 0;
 	
 	private static boolean alarmScheduled = false;
 
-	private static long lastMessageTimeMillis = 0;
-	private final static long minInterval = 200;	
-	
 	public static void checkAlarm(Context ctx)
 	{
 		if (!alarmScheduled)
@@ -32,7 +29,6 @@ public class PebbleService
 			alarmScheduled = true;
 		}
 	}
-
 
 	private static int getPhoneChargeLevel(Context context)
 	{
@@ -57,17 +53,11 @@ public class PebbleService
 
 		synchronized (PebbleService.class)
 		{
-			long currentTime = System.currentTimeMillis();
-			
-			if (currentTime - lastMessageTimeMillis < minInterval)
-			{
-				Lw.d(TAG, "Last message was sent " + (currentTime - lastMessageTimeMillis) + " millis ago, not sending second" );
-				return;
-			}
-			
-			lastMessageTimeMillis = currentTime;
-			
-			Lw.d(TAG, "sending bitmask " + notificationsMask + ", batt " + chargeLevel);
+			int weatherLevel = WeatherService.getWeatherSeverityLevel();
+			int weatherCode = WeatherService.getWeatherCode();
+					
+			Lw.d(TAG, "sending: mask: " + notificationsMask + ", batt: " + chargeLevel + 
+					(weatherLevel > 1 ? (", wthr_cd: " + weatherCode + ", lvl: " + weatherLevel) : ""));
 
 			try 
 			{
@@ -75,8 +65,10 @@ public class PebbleService
 				data.addInt32((byte)Protocol.EntryNotificationsBitmask, notificationsMask);
 				data.addUint8((byte)Protocol.EntryChargeLevel, (byte)chargeLevel);
 	
-				if (WeatherService.getWeatherSeverityLevel() > 1)
-					data.addUint8((byte)Protocol.EntryWeatherAlert, (byte)WeatherService.getWeatherCode());
+				if (weatherLevel > 1)
+				{
+					data.addUint8((byte)Protocol.EntryWeatherAlert, (byte)weatherCode);
+				}
 				
 				PebbleKit.sendDataToPebble(context, DataReceiver.pebbleAppUUID, data);
 			}
