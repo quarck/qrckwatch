@@ -382,7 +382,7 @@ void handle_init(void)
 	Layer *window_layer = window_get_root_layer(window);
 
 	// Notifications text layer
-	notifications_layer = text_layer_create(GRect(4, 4, 144-8, 72));
+	notifications_layer = text_layer_create(GRect(4, 0, 144-8, 72));
 	text_layer_set_text_color(notifications_layer, GColorWhite);
 	text_layer_set_background_color(notifications_layer, GColorClear);
 	text_layer_set_font(notifications_layer,
