@@ -3,10 +3,6 @@
 #include "protocol.h"
 #include "weathercodes.h"
 
-enum {
-	CHARGE_POLL_INTERVAL = 5 // every 5 mins
-};
-
 Window *window;
 TextLayer *text_date_layer;
 TextLayer *text_time_layer;
@@ -83,7 +79,7 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 
 	text_layer_set_text(text_time_layer, time_text);
 
-	bt_disconnected = (now - last_bt_update > 390) ? 1 : 0; // 6.5 min
+	bt_disconnected = (now - last_bt_update > 450) ? 1 : 0; // 7.5 
 
 	display_indicators();
 	
