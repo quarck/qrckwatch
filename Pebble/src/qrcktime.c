@@ -321,6 +321,7 @@ void received_data(DictionaryIterator *received, void *context)
 	Tuple *entry = NULL;
 
 	last_bt_update = time(NULL);
+	bt_disconnected = 0; 
 
 	entry = dict_find(received, ENTRY_NOTIFICATIONS_BITMASK); 
 	if (entry != NULL)
@@ -381,7 +382,7 @@ void handle_init(void)
 	Layer *window_layer = window_get_root_layer(window);
 
 	// Notifications text layer
-	notifications_layer = text_layer_create(GRect(4, 4, 144-8, 64));
+	notifications_layer = text_layer_create(GRect(4, 4, 144-8, 72));
 	text_layer_set_text_color(notifications_layer, GColorWhite);
 	text_layer_set_background_color(notifications_layer, GColorClear);
 	text_layer_set_font(notifications_layer,
@@ -390,7 +391,7 @@ void handle_init(void)
 	layer_add_child(window_layer, text_layer_get_layer(notifications_layer));
 
 	// Date layer
-	text_date_layer = text_layer_create(GRect(8, 68, 144 - 8, 168 - 68));
+	text_date_layer = text_layer_create(GRect(8, 72, 144 - 8, 168 - 68));
 	text_layer_set_text_color(text_date_layer, GColorWhite);
 	text_layer_set_background_color(text_date_layer, GColorClear);
 	text_layer_set_font(text_date_layer,
@@ -399,7 +400,7 @@ void handle_init(void)
 	layer_add_child(window_layer, text_layer_get_layer(text_date_layer));
 
 	// Time layer
-	text_time_layer = text_layer_create(GRect(7, 92, 144 - 7, 168 - 92));
+	text_time_layer = text_layer_create(GRect(7, 95, 144 - 7, 168 - 92));
 	text_layer_set_text_color(text_time_layer, GColorWhite);
 	text_layer_set_background_color(text_time_layer, GColorClear);
 	text_layer_set_font(text_time_layer,
@@ -408,7 +409,7 @@ void handle_init(void)
 	layer_add_child(window_layer, text_layer_get_layer(text_time_layer));
 
 	// Upper line layer
-	GRect top_line_frame = GRect(8, 97, 130, 2);
+	GRect top_line_frame = GRect(0, 100, 144, 1);
 	top_line_layer = layer_create(top_line_frame);
 	layer_set_update_proc(top_line_layer, top_line_layer_update_callback);
 	layer_add_child(window_layer, top_line_layer);
