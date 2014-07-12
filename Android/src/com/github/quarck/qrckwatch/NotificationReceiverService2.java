@@ -34,9 +34,9 @@ import android.service.notification.StatusBarNotification;
 
 import com.getpebble.android.kit.PebbleKit;
 
-public class NotificationReceiverService extends NotificationListenerService
+public class NotificationReceiverService2 extends NotificationListenerService
 {
-	public static final String TAG = "Service";
+	public static final String TAG = "NotificationReceiverService";
 	
 	@Override
 	public void onCreate()
@@ -55,7 +55,7 @@ public class NotificationReceiverService extends NotificationListenerService
 	@Override
 	public IBinder onBind(Intent intent)
 	{
-		Service.checkAlarm(this);
+		PebbleService.checkAlarm(this);
 		return super.onBind(intent);
 	}
 	
@@ -69,7 +69,7 @@ public class NotificationReceiverService extends NotificationListenerService
 			return;
 		}
 
-		Service.checkAlarm(this);
+		PebbleService.checkAlarm(this);
 
 		StatusBarNotification[] notifications = null;
 
@@ -109,7 +109,7 @@ public class NotificationReceiverService extends NotificationListenerService
 			Lw.e(TAG, "Can't get list of notifications. WE HAVE NO PERMISSION!! ");
 		}
 
-		Service.setNotificationsMask(this, newBitmask);
+		PebbleService.setNotificationsMask(this, newBitmask);
 	}
 
 	@Override

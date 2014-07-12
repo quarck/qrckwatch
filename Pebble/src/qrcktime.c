@@ -1,6 +1,7 @@
 #include "pebble.h"
 
 #include "protocol.h"
+#include "weathercodes.h"
 
 enum {
 	CHARGE_POLL_INTERVAL = 5 // every 5 mins
@@ -26,6 +27,8 @@ int8_t watch_charge_level = -1; // values outside of 0...100 are ... N/A
 
 int8_t bt_disconnected = 1;
 time_t last_bt_update = 0;
+
+int8_t weather_code = 0;
 
 void send_request();
 void display_notifications();
@@ -89,10 +92,161 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 
 void display_notifications()
 {
-	static char notifications[128];
+	static char notifications[128+30];
 
 	memset(notifications, 0, sizeof(notifications));
+
+	if (weather_code != 0 )
+	{
+		switch(weather_code)
+		{
+			case TORNADO: // 0, // 	tornado
+				strcat(notifications, "!! TORNADO !!\n");
+				break; 
+			
+			case TROPICAL_STORM: //1,	//	tropical storm
+				strcat(notifications, "!! STORM !!\n");
+				break; 
+			
+			case HURRICANE: //2,	//	hurricane
+				strcat(notifications, "!! HURRICANE !!\n");
+				break; 
+			
+			case SEVERE_THUNDERSTORMS: //3,	//	severe thunderstorms
+				strcat(notifications, "!! THUNDERSTORM !!\n");
+				break; 
 	
+			case ISOLATED_THUNDERSTORMS: //37,	//	isolated thunderstorms
+			case SCATTERED_THUNDERSTORMS_1: //38,	//	scattered thunderstorms
+			case SCATTERED_THUNDERSTORMS_2: //39,	//	scattered thunderstorms
+			case ISOLATED_THUNDERSTORMS_2: //47	//	isolated thundershowers
+			case THUNDERSTORMS_2: //45,	//	thundershowers
+			case THUNDERSTORMS: //4,	//	thunderstorms
+				strcat(notifications, "[THUNDERSTORM]\n");
+				break; 
+			
+			case MIXED_RAIN_AND_SNOW: //5,	//	mixed rain and snow
+				strcat(notifications, "[RAIN & SNOW]\n");
+				break; 
+			
+			case MIXED_RAIND_AND_SLEET: //6,	//	mixed rain and sleet
+				strcat(notifications, "[RAIN & SLEET]\n");
+				break; 
+			
+			case MIXED_RAIN_AND_HAIL: //35,	//	mixed rain and hail
+				strcat(notifications, "[RAIN & HAIL]\n");
+				break; 
+			
+			case MIXED_SNOW_AND_SLEET: //7,	//	mixed snow and sleet
+				strcat(notifications, "[SNOW & SLEET]\n");
+				break; 
+			
+			case FREEZING_DRIZZLE: //8,	//	freezing drizzle
+				strcat(notifications, "[FREEZING DRIZZLE]\n");
+				break; 
+			
+			case DRIZZLE: //9,	//	drizzle
+				strcat(notifications, "[DRIZZLE]\n");
+				break; 
+			
+			case FREEZING_RAIN: //10,	//	freezing rain
+				strcat(notifications, "[RAIN]\n");
+				break; 
+			
+			case SHOWERS_1: //11,	//	showers
+			case SHOWERS_2: //12,	//	showers
+			case SCATTERED_SHOWERS: //40,	//	scattered showers
+				strcat(notifications, "[SHOWERS]\n");
+				break; 
+			
+			
+			case HAIL: //17,	//	hail
+				strcat(notifications, "[HAIL]\n");
+				break; 
+			
+			case SLEET: //18,	//	sleet
+				strcat(notifications, "[SLEET]\n");
+				break; 
+			
+			case DUST: //19,	//	dust
+				strcat(notifications, "[DUST]\n");
+				break; 
+			
+			case FOGGY: //20,	//	foggy
+				strcat(notifications, "[FOGGY]\n");
+				break; 
+			
+			case HAZE: //21,	//	haze
+				strcat(notifications, "[HAZE]\n");
+				break; 
+			
+			case SMOKY: //22,	//	smoky
+				strcat(notifications, "[SMOKY]\n");
+				break; 
+			
+			case BLUSTERY: //23,	//	blustery
+				strcat(notifications, "[BLUSTERY]\n");
+				break; 
+			
+			case WINDY: //24,	//	windy
+				strcat(notifications, "[WINDY]\n");
+				break; 
+			
+			case COLD: //25,	//	cold
+				strcat(notifications, "[COLD]\n");
+				break; 
+			
+
+			case CLOUDY: //26,	//	cloudy
+			case MOSTLY_CLOUDY_NIGHT: //27,	//	mostly cloudy (night)
+			case MOSTLY_CLOUDY_DAY: //28,	//	mostly cloudy (day)
+			case PARTLY_CLOUDY_NIGHT: //29,	//	partly cloudy (night)
+			case PARTLY_CLOUDY_DAY: //30,	//	partly cloudy (day)
+			case PARTLY_CLOUDY: //44,	//	partly cloudy
+				strcat(notifications, "[CLOUDY]\n");
+				break; 
+			
+			case CLEAR: //31,	//	clear (night)
+				strcat(notifications, "[CLEAR]\n");
+				break; 
+			case SUNNY: //32,	//	sunny
+				strcat(notifications, "[SUNNY]\n");
+				break; 
+			case FAIR_NIGHT: //33,	//	fair (night)
+			case FAIR_DAY: //34,	//	fair (day)
+				strcat(notifications, "[FAIR]\n");
+				break; 
+			case HOT: //36,	//	hot
+				strcat(notifications, "[HOT]\n");
+				break; 
+
+			
+			case SNOW_FLURRIES: //13,	//	snow flurries
+			case LIGHT_SNOW_SHOWERS: //14,	//	light snow showers
+				strcat(notifications, "[SNOW FLURRIES]\n");
+				break; 
+			
+			case BLOWING_SNOW: //15,	//	blowing snow
+				strcat(notifications, "[BLOWING SNOW]\n");
+				break; 
+			
+			case SNOW: //16,	//	snow
+				strcat(notifications, "[SNOW]\n");
+				break; 
+
+
+			case HEAVY_SNOW_1: //41,	//	heavy snow
+			case HEAVY_SNOW_2: //43,	//	heavy snow
+				strcat(notifications, "!! HEAVY SNOW !!\n");
+				break;
+
+			case SNOW_SHOWERS : //46,	//	snow showers
+			case SCATTERED_SNOW_SHOWERS: //42,	//	scattered snow showers
+				strcat(notifications, "[SNOW SHOWERS]\n");
+				break;
+		}
+	}
+
 	if (notifications_bitmask & NOTIFICATION_CALENDAR)
 		strcat(notifications, "[CAL] "); // 6
 
@@ -178,13 +332,19 @@ void received_data(DictionaryIterator *received, void *context)
 	entry = dict_find(received, ENTRY_CHARGE_LEVEL); 
 	if (entry != NULL)
 	{
-		phone_charge_level = entry->value->int32;
+		phone_charge_level = entry->value->uint8;
 	}
 	
 	entry = dict_find(received, ENTRY_WEATHER_ALERT); 
 	if (entry != NULL)
 	{
-		// will be displaying weather alert here
+		weather_code = entry->value->uint8;
+		display_notifications();
+	}
+	else if (weather_code != 0 ) // alert disappeared
+	{
+		weather_code = 0;
+		display_notifications();
 	}
 		
 	display_indicators();

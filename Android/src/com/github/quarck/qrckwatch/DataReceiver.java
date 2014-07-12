@@ -22,11 +22,9 @@ public class DataReceiver extends BroadcastReceiver
 	
 	public void receiveData(final Context context, final int transactionId, final PebbleDictionary data)
 	{
-		Service.checkAlarm(context);
-		
 		PebbleKit.sendAckToPebble(context, transactionId);
 
-		Service.gotPacketFromPebble(context, data);
+		PebbleService.gotPacketFromPebble(context, data);
 	}
 
 	public void onReceive(final Context context, final Intent intent) 

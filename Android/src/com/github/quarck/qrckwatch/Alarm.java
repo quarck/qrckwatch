@@ -47,7 +47,7 @@ public class Alarm extends BroadcastReceiver
 	{
 		Lw.d(TAG, "Alarm received");
 		
-		Service.sendUpdateToPebble(context);
+		PebbleService.sendUpdateToPebble(context);
 	}
 	
 	public static void setAlarmMillis(Context context, int repeatMillis)

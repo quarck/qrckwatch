@@ -30,6 +30,9 @@ package com.github.quarck.qrckwatch;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 public class MainActivity extends Activity
 {
@@ -46,7 +49,18 @@ public class MainActivity extends Activity
 		
 		Lw.d(TAG, "onCreateView");
 
-		setContentView(R.layout.activity_main);		
+		setContentView(R.layout.activity_main);
+		
+		((Button)findViewById(R.id.button1)).setOnClickListener(
+				new OnClickListener() 
+				{
+					@Override
+					public void onClick(View arg0)
+					{
+						WeatherService.test(MainActivity.this);
+					}
+				}
+			);
 	}
 	
 	@Override
