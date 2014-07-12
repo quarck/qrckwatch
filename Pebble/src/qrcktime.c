@@ -142,7 +142,7 @@ void display_notifications()
 		strcat(notifications, "[SKYPE] "); // 8, 44
 
 	if (notifications_bitmask & NOTIFICATION_GOOGLEHANGOUTS)
-		strcat(notifications, "[MSG] "); // 6, 50
+		strcat(notifications, "[GTALK] "); // 6, 50
 
 	if (notifications_bitmask & NOTIFICATION_GOOGLEPLUS)
 		strcat(notifications, "[G+] "); // 5, 55
@@ -482,7 +482,7 @@ void handle_init(void)
 	layer_add_child(window_layer, text_layer_get_layer(weather_status_layer));
 
 	// Phone battery layer 
-	phone_batt_layer = text_layer_create(GRect(110, 66, 14, 18));
+	phone_batt_layer = text_layer_create(GRect(110, 68, 14, 18));
 	text_layer_set_text_alignment(phone_batt_layer, GTextAlignmentRight);
 	text_layer_set_text_color(phone_batt_layer, GColorWhite);
 	text_layer_set_background_color(phone_batt_layer, GColorClear);
@@ -492,7 +492,7 @@ void handle_init(void)
 	layer_add_child(window_layer, text_layer_get_layer(phone_batt_layer));
 
 	// Watch battery layer
-	watch_batt_layer = text_layer_create(GRect(124, 66, 14, 18));
+	watch_batt_layer = text_layer_create(GRect(124, 68, 14, 18));
 	text_layer_set_text_alignment(watch_batt_layer, GTextAlignmentRight);
 	text_layer_set_text_color(watch_batt_layer, GColorWhite);
 	text_layer_set_background_color(watch_batt_layer, GColorClear);
