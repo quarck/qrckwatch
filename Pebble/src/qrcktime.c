@@ -24,7 +24,7 @@ int8_t watch_charge_level = -1; // values outside of 0...100 are ... N/A
 int8_t bt_disconnected = 1;
 time_t last_bt_update = 0;
 
-int8_t weather_code = 0;
+int8_t weather_code = 127; // out of range
 
 void send_request();
 void display_notifications();
