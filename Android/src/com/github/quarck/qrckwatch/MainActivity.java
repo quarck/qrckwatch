@@ -33,31 +33,59 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 public class MainActivity extends Activity
 {
 	private static String TAG = "MainActivity";
+
+	private Settings settings = null;
 	
 	private boolean shownSecurityPane = false;
+	
+	private EditText textView1 = null;
+	private EditText textView2 = null;
+	private EditText textView3 = null;
+	private EditText textView4 = null;
+	private EditText textView5 = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		
-		Lw.d("main activity created");
-		
-		Lw.d(TAG, "onCreateView");
 
 		setContentView(R.layout.activity_main);
+
+		Lw.d(TAG, "onCreateView");
+
+		settings = new Settings(this);
 		
-		((Button)findViewById(R.id.button1)).setOnClickListener(
+		textView1 = ((EditText)findViewById(R.id.editText1));
+		textView2 = ((EditText)findViewById(R.id.editText2));
+		textView3 = ((EditText)findViewById(R.id.editText3));
+		textView4 = ((EditText)findViewById(R.id.editText4));
+		textView5 = ((EditText)findViewById(R.id.editText5));
+		
+		textView1.setText(Integer.toString(settings.getWeatherLoc1()));
+		textView2.setText(Integer.toString(settings.getWeatherLoc2()));
+		textView3.setText(Integer.toString(settings.getWeatherLoc3()));
+		textView4.setText(Integer.toString(settings.getWeatherLoc4()));
+		textView5.setText(Integer.toString(settings.getWeatherLoc5()));
+		
+		((Button)findViewById(R.id.buttonSaveWeather)).setOnClickListener(
 				new OnClickListener() 
 				{
 					@Override
 					public void onClick(View arg0)
 					{
-						WeatherService.test(MainActivity.this);
+						settings.setWeatherLoc1(Integer.valueOf(textView1.getText().toString()));
+						settings.setWeatherLoc2(Integer.valueOf(textView2.getText().toString()));
+						settings.setWeatherLoc3(Integer.valueOf(textView3.getText().toString()));
+						settings.setWeatherLoc4(Integer.valueOf(textView4.getText().toString()));
+						settings.setWeatherLoc5(Integer.valueOf(textView5.getText().toString()));
+						
+						WeatherService.runWeatherUpdate(MainActivity.this);
 					}
 				}
 			);
@@ -68,7 +96,6 @@ public class MainActivity extends Activity
 	{
 		Lw.d(TAG, "onStart()");
 		super.onStart();
-		
 	}
 
 	@Override

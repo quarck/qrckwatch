@@ -17,8 +17,6 @@ public class WeatherService extends IntentService
 {
 	public static final String TAG = "WeatherService";
 
-	private static Weather lastWeather = null;
-	
 	private static PowerManager.WakeLock wakeLock = null;
 
 	private static int weatherSeverityLevel = 0;
@@ -32,48 +30,86 @@ public class WeatherService extends IntentService
 	@Override
 	protected void onHandleIntent(Intent intent) 
 	{
-		String hardcodedForNowUrl = "http://weather.yahooapis.com/forecastrss?w=560755&u=c";
+		int[] locations = new Settings(this).getWeatherLocations();
+		
+		Lw.d(TAG, "Weather locations: " + locations );
+		
+		int newWeatherCode = 127;
+		int newWeatherSevirity = 0;
+	
+		for (int idx = 0; idx < locations.length; idx ++ )
+		{
+			String weatherUrl = "http://weather.yahooapis.com/forecastrss?w=" + locations[idx] + "&u=c";
 
-		try 
-		{			
-			String rssXml = new NetworkClient().getWeatherRss(hardcodedForNowUrl);
+			if (locations[idx] == 0)
+			{
+				Lw.d(TAG, "Location at " + idx + " is disabled, skipping");
+				continue;
+			}
 			
-			if (rssXml != null)
-			{
-				lastWeather = Parser.parse(rssXml);
-			}
-
-			if (lastWeather != null)
-			{
-				WeatherCodes.WeatherCode currentCode = WeatherCodes.getWeatherCode( lastWeather.currentCode );
-
-				WeatherCodes.WeatherCode forecastCode = null;
-
-				if (lastWeather.forecast != null )
-					forecastCode = WeatherCodes.getWeatherCode( lastWeather.forecast.code );
-
-				if (currentCode.severity > 1)
+			Lw.d(TAG, "Checking weather for location " + locations[idx] + ", url is " + weatherUrl);
+			
+			try 
+			{			
+				String rssXml = new NetworkClient().getWeatherRss(weatherUrl);
+				
+				Weather lastWeather = null;
+				
+				if (rssXml != null)
 				{
-					weatherSeverityLevel = currentCode.severity;
-					weatherCode = currentCode.code;
+					lastWeather = Parser.parse(rssXml);
 				}
-
-				if (forecastCode != null && forecastCode.severity > currentCode.severity)
+				else
 				{
-					weatherSeverityLevel = forecastCode.severity;
-					weatherCode = forecastCode.code;
+					Lw.e(TAG, "Failed to get rssXml");
+				}
+	
+				if (lastWeather != null)
+				{
+					WeatherCodes.WeatherCode currentCode = WeatherCodes.getWeatherCode( lastWeather.currentCode );
+	
+					WeatherCodes.WeatherCode forecastCode = null;
+	
+					if (lastWeather.forecast != null )
+					{
+						forecastCode = WeatherCodes.getWeatherCode( lastWeather.forecast.code );
+					}
+					else
+					{
+						Lw.e(TAG, "Has no forecast data for this location");
+					}
+	
+					if (currentCode.severity > 1 && currentCode.severity > newWeatherSevirity)
+					{
+						newWeatherSevirity = currentCode.severity;
+						newWeatherCode = currentCode.code;
+						Lw.d(TAG, "Updated[1] weather data to: code: " + newWeatherCode + ", level: " + newWeatherSevirity);
+					}
+	
+					if (forecastCode != null && forecastCode.severity > newWeatherSevirity)
+					{
+						newWeatherSevirity = forecastCode.severity;
+						newWeatherCode = forecastCode.code;
+						Lw.d(TAG, "Updated[2] weather data to: code: " + newWeatherCode + ", level: " + newWeatherSevirity);
+					}
+				}
+				else
+				{
+					Lw.e(TAG, "Failed to get weather information");
 				}
 			}
+			catch (Exception ex)
+			{
+				Lw.e(TAG, "Got exception " + ex);
+			}
 		}
-		catch (Exception ex)
-		{
-		}
-		finally
-		{
-			if (wakeLock != null)
-				wakeLock.release();
-			wakeLock = null;
-		}
+
+		if (wakeLock != null)
+			wakeLock.release();
+		wakeLock = null;
+
+		weatherSeverityLevel = newWeatherSevirity;
+		weatherCode = newWeatherCode;
 	}
 
 	public static int getWeatherSeverityLevel()
