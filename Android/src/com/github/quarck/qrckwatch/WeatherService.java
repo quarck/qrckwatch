@@ -22,7 +22,7 @@ public class WeatherService extends IntentService
 	private static PowerManager.WakeLock wakeLock = null;
 
 	private static int weatherSeverityLevel = 0;
-	private static int weatherCode = 0;
+	private static int weatherCode = 127;
 
 	public WeatherService() 
 	{

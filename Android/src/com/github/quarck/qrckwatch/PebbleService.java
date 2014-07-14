@@ -43,6 +43,7 @@ public class PebbleService
 			return  Math.round( level / (float)scale * 100.0f);
 		}
 	}
+
 	
 	public static void sendUpdateToPebble(Context context)
 	{

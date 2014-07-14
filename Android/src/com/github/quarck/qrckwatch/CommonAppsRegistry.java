@@ -62,6 +62,7 @@ public class CommonAppsRegistry
 		packages.put("com.android.mms", Integer.valueOf(Messages));
 		
 		packages.put("com.google.android.email", Integer.valueOf(Email));
+		packages.put("com.android.email", Integer.valueOf(Email));
 		packages.put("com.fsck.k9", Integer.valueOf(Email));
 		packages.put("org.kman.AquaMail", Integer.valueOf(Email));
 		packages.put("net.daum.android.solmail", Integer.valueOf(Email));

@@ -391,7 +391,7 @@ void received_data(DictionaryIterator *received, void *context)
 	}
 	else if (weather_code != 0 ) // alert disappeared
 	{
-		weather_code = 0;
+		weather_code = 127;
 	}
 	
 	display_notifications();
