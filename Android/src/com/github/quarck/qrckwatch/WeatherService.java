@@ -21,6 +21,8 @@ public class WeatherService extends IntentService
 
 	private static int weatherSeverityLevel = 0;
 	private static int weatherCode = 127;
+	
+	private static long lastWeatherUpdate = 0;
 
 	public WeatherService() 
 	{
@@ -104,12 +106,16 @@ public class WeatherService extends IntentService
 			}
 		}
 
+		weatherSeverityLevel = newWeatherSevirity;
+		weatherCode = newWeatherCode;
+		
+		lastWeatherUpdate = System.currentTimeMillis();
+
+
+		// release wakelock when nothing else left to do - CPU might go into sleep straight on the ".release" call
 		if (wakeLock != null)
 			wakeLock.release();
 		wakeLock = null;
-
-		weatherSeverityLevel = newWeatherSevirity;
-		weatherCode = newWeatherCode;
 	}
 
 	public static int getWeatherSeverityLevel()
@@ -134,12 +140,11 @@ public class WeatherService extends IntentService
 		ctx.startService(it);
 	}
 
-	public static void test(Context ctx)
+	public static long secondsSinceUpdate()
 	{
-/*		weatherCode++;
-		weatherSeverityLevel = 10;
-		PebbleService.sendUpdateToPebble(ctx); 
-	*/
-	//	runWeatherUpdate(ctx);
+		long current = System.currentTimeMillis();
+		
+		return (current - lastWeatherUpdate) / 1000;
 	}
+	
 }

@@ -49,6 +49,7 @@ public class MainActivity extends Activity
 	private EditText textView3 = null;
 	private EditText textView4 = null;
 	private EditText textView5 = null;
+	private TextView textViewLastUpdated = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -72,6 +73,11 @@ public class MainActivity extends Activity
 		textView3.setText(Integer.toString(settings.getWeatherLoc3()));
 		textView4.setText(Integer.toString(settings.getWeatherLoc4()));
 		textView5.setText(Integer.toString(settings.getWeatherLoc5()));
+		
+		textViewLastUpdated = ((TextView)findViewById(R.id.textViewLastUpdated));
+		
+		textViewLastUpdated.setText("Since last: "  + Long.toString(WeatherService.secondsSinceUpdate()));
+		
 		
 		((Button)findViewById(R.id.buttonSaveWeather)).setOnClickListener(
 				new OnClickListener() 
