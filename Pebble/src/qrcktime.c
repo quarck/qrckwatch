@@ -4,7 +4,7 @@
 #include "weathercodes.h"
 
 #define NUM_ICONS 19
-#define NUM_ICON_POSITIONS 12
+#define NUM_ICON_POSITIONS 10
 
 #define DEFAULT_WEATHER_CODE 127
 
@@ -31,16 +31,20 @@ int8_t bt_disconnected = 1;
 int8_t weather_code = DEFAULT_WEATHER_CODE; // out of range
 
 void send_request();
-void display_notifications();
+void notifications_update_callback(Layer * layer, GContext * ctx);
 void display_indicators();
 
 // Menu items can optionally have an icon drawn with them
 GBitmap *notification_icons[NUM_ICONS];
 
-BitmapLayer* image_layers[NUM_ICON_POSITIONS];
+//BitmapLayer* image_layers[NUM_ICON_POSITIONS];
+
+Layer* notification_layer = NULL;
 
 static GBitmap *get_icon_for_id(int id)
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "get_icon_for_id, id=%d", id);
+
 	int idx = -1; 
 
 	// not a very best solution, but have no std::map<int,int>
@@ -67,12 +71,19 @@ static GBitmap *get_icon_for_id(int id)
 	case RESOURCE_ID_IMAGE_MORE_NOTIFICATIONS:  idx = 18; break;
 	case RESOURCE_ID_IMAGE_EMPTY:  idx = 19; break;
 	}    
+	
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "get_icon_for_id, mapped to idx %d", idx);
 
 	if (idx == -1 )
 		return NULL;
 
 	if (notification_icons[idx] == NULL)
+	{
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "get_icon_for_id: image resource is not yet has been loaded, loading");
 		notification_icons[idx] = gbitmap_create_with_resource(id);
+
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "get_icon_for_id: loaded");
+	}
 
 	return notification_icons[idx];
 }
@@ -124,24 +135,50 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 
 	display_indicators();
 	
-	display_notifications();
+	layer_mark_dirty(notification_layer);
 }
 
-void display_notification_icon(int id, int *current_pos)
+void display_notification_icon(GContext* ctx, int id, int *current_pos)
 {
-	if (*current_pos < NUM_ICON_POSITIONS)
+	GRect bounds; 
+
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "current_pos=%p, *current_pos=%d", current_pos, *current_pos);
+
+	if (!(*current_pos < NUM_ICON_POSITIONS))
+		return;
+
+	GBitmap* icon = get_icon_for_id(id);
+	if (icon == NULL)
+		return;
+
+	bounds.size.w = 24;
+	bounds.size.h = 24;
+
+	if (*current_pos < NUM_ICON_POSITIONS / 2 )
 	{
-		bitmap_layer_set_bitmap(image_layers[*current_pos], get_icon_for_id(id));
-		++(*current_pos);
+		bounds.origin.x = (*current_pos) * 28 + 2;
+		bounds.origin.y = 2;
 	}
+	else
+	{
+		bounds.origin.x = (*current_pos - NUM_ICON_POSITIONS/2) * 28 + 2;
+		bounds.origin.y = 28 + 2;
+	}
+  
+	graphics_draw_bitmap_in_rect(ctx, icon, bounds);
+
+	++(*current_pos);
 }
 
-void display_notifications()
+void notifications_update_callback(Layer * layer, GContext * ctx)
 {
 	int next_notification_icon_pos = 0;
 
 	//static char notifications[128+30];
 	int weather_warning = 0;
+
+	graphics_context_set_fill_color(ctx, GColorBlack);
+	graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
 
 	//memset(notifications, 0, sizeof(notifications));
 
@@ -162,69 +199,68 @@ void display_notifications()
 			weather_warning = 1;
 			break;
 	}
- 
-	
+
 	if (weather_warning >= 3)
-		display_notification_icon(RESOURCE_ID_IMAGE_EMERGENCY, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_EMERGENCY, &next_notification_icon_pos);
 	else if (weather_warning >= 1)
-		display_notification_icon(RESOURCE_ID_IMAGE_WARNING, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_WARNING, &next_notification_icon_pos);
 
 	if (bt_disconnected)
-		display_notification_icon(RESOURCE_ID_IMAGE_NOBT, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_NOBT, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_CALENDAR)
-		display_notification_icon(RESOURCE_ID_IMAGE_CALENDAR, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_CALENDAR, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_GMAIL)
-		display_notification_icon(RESOURCE_ID_IMAGE_GMAIL, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_GMAIL, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_EMAIL)
-		display_notification_icon(RESOURCE_ID_IMAGE_EMAIL, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_EMAIL, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_PHONE)
-		display_notification_icon(RESOURCE_ID_IMAGE_PHONE, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_PHONE, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_MESSAGES)
-		display_notification_icon(RESOURCE_ID_IMAGE_MESSAGE, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_MESSAGE, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_SKYPE)
-		display_notification_icon(RESOURCE_ID_IMAGE_SKYPE, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_SKYPE, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_GOOGLEHANGOUTS)
-		display_notification_icon(RESOURCE_ID_IMAGE_HANGOUTS, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_HANGOUTS, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_GOOGLEPLUS)
-		display_notification_icon(RESOURCE_ID_IMAGE_GPLUS, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_GPLUS, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_VOIP)
-		display_notification_icon(RESOURCE_ID_IMAGE_VOIP, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_VOIP, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_IM)
-		display_notification_icon(RESOURCE_ID_IMAGE_IM, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_IM, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_FACEBOOK)
-		display_notification_icon(RESOURCE_ID_IMAGE_FACEBOOK, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_FACEBOOK, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_LINKEDIN)
-		display_notification_icon(RESOURCE_ID_IMAGE_LINKEDIN, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_LINKEDIN, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_VK)
-		display_notification_icon(RESOURCE_ID_IMAGE_VK, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_VK, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_INSTGRAM)
-		display_notification_icon(RESOURCE_ID_IMAGE_INSTGRAM, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_INSTGRAM, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_UNKNOWN)
-		display_notification_icon(RESOURCE_ID_IMAGE_MORE_NOTIFICATIONS, &next_notification_icon_pos);
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_MORE_NOTIFICATIONS, &next_notification_icon_pos);
 
 //	text_layer_set_text(notifications_layer, notifications);
 
 
 	// fill the rest with empty icons, - no notifications for now
-	while (next_notification_icon_pos < NUM_ICON_POSITIONS)
+	/*while (next_notification_icon_pos < NUM_ICON_POSITIONS)
 	{
 		display_notification_icon(RESOURCE_ID_IMAGE_EMPTY, &next_notification_icon_pos);
-	}
+	}*/
 }
 
 char pct_to_hex(int pct)
@@ -453,7 +489,7 @@ void received_data(DictionaryIterator *received, void *context)
 		weather_code = DEFAULT_WEATHER_CODE;
 	}
 	
-	display_notifications();
+	layer_mark_dirty(notification_layer);
 	display_indicators();
 }
 
@@ -480,8 +516,14 @@ void handle_deinit(void)
 	tick_timer_service_unsubscribe();
 	battery_state_service_unsubscribe();
 
+	/*
 	for (idx = 0; idx < NUM_ICON_POSITIONS; ++idx)
 		bitmap_layer_destroy(image_layers[idx]);
+*/
+
+//#warning " more layer_destroy-s "
+
+	layer_destroy(notification_layer);
 
 	for (idx = 0; idx < NUM_ICONS; ++idx)
 	{
@@ -493,7 +535,7 @@ void handle_deinit(void)
 void handle_init(void)
 {
 	int idx;
-	GRect bounds;
+	//GRect bounds;
 
 	for (idx = 0; idx < NUM_ICONS; ++idx)
 		notification_icons[idx] = NULL;
@@ -504,9 +546,9 @@ void handle_init(void)
 
 	Layer *window_layer = window_get_root_layer(window);
 
-	/*
+	
 	// Notifications text layer
-	notifications_layer = text_layer_create(GRect(4, 0, 144-8, 66));
+	/*notifications_layer = text_layer_create(GRect(4, 0, 144-8, 66));
 	text_layer_set_text_color(notifications_layer, GColorWhite);
 	text_layer_set_background_color(notifications_layer, GColorClear);
 	text_layer_set_font(notifications_layer,
@@ -516,9 +558,9 @@ void handle_init(void)
 */
 	// Notification icon layers 
 
-	bounds.size.w = 28;
+	/*bounds.size.w = 28;
 	bounds.size.h = 28;
-	
+
 	for (idx = 0; idx < NUM_ICON_POSITIONS; ++idx)
 	{
 		if (idx < NUM_ICON_POSITIONS / 2 )
@@ -531,13 +573,22 @@ void handle_init(void)
 			bounds.origin.x = (idx-NUM_ICON_POSITIONS/2) * 28;
 			bounds.origin.y = 28;
 		}
+	
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "handle_init: icon idx %d, bounds: %dx%d-%dx%d", idx, 
+					bounds.origin.x, bounds.origin.y, bounds.size.w, bounds.size.h);
 
 		image_layers[idx] = bitmap_layer_create(bounds);
   		bitmap_layer_set_alignment(image_layers[idx], GAlignCenter);
   		
 		layer_add_child(window_layer, bitmap_layer_get_layer(image_layers[idx]));
-	}
+	}*/
 
+	notification_layer = layer_create( 
+			(GRect) { .origin = { 0, 0 }, 
+			 	   .size = { 168, 66 } });
+
+	layer_set_update_proc(window_layer, notifications_update_callback);
+	layer_add_child(window_layer, notification_layer);
 
 	// Date layer
 	text_date_layer = text_layer_create(GRect(8, 66, 114 - 8, 25));
@@ -618,9 +669,12 @@ void handle_init(void)
 
 int main(void)
 {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "entering handle_init()");
 	handle_init();
 
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "entering app_event_loop()");
 	app_event_loop();
 
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "entering handle_deinit()");
 	handle_deinit();
 }
