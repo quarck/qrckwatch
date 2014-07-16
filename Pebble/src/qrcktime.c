@@ -3,6 +3,11 @@
 #include "protocol.h"
 #include "weathercodes.h"
 
+#define NUM_ICONS 19
+#define NUM_ICON_POSITIONS 12
+
+#define DEFAULT_WEATHER_CODE 127
+
 Window *window;
 TextLayer *text_date_layer;
 TextLayer *text_time_layer;
@@ -10,7 +15,7 @@ TextLayer *text_time_layer;
 Layer *top_line_layer;
 Layer *bottom_line_layer;
 
-TextLayer *notifications_layer;
+//TextLayer *notifications_layer;
 
 TextLayer *weather_status_layer;
 TextLayer *phone_batt_layer;
@@ -23,25 +28,62 @@ int8_t watch_charge_level = -1; // values outside of 0...100 are ... N/A
 
 int8_t bt_disconnected = 1;
 
-int8_t weather_code = 127; // out of range
+int8_t weather_code = DEFAULT_WEATHER_CODE; // out of range
 
 void send_request();
 void display_notifications();
 void display_indicators();
 
+// Menu items can optionally have an icon drawn with them
+GBitmap *notification_icons[NUM_ICONS];
 
-void top_line_layer_update_callback(Layer * layer, GContext * ctx)
+BitmapLayer* image_layers[NUM_ICON_POSITIONS];
+
+static GBitmap *get_icon_for_id(int id)
+{
+	int idx = -1; 
+
+	// not a very best solution, but have no std::map<int,int>
+	switch (id)
+	{
+	case RESOURCE_ID_IMAGE_MENU_ICON:  idx = 0; break;
+	case RESOURCE_ID_IMAGE_CALENDAR:  idx = 1; break;
+	case RESOURCE_ID_IMAGE_EMAIL:  idx = 2; break;
+	case RESOURCE_ID_IMAGE_EMERGENCY:  idx = 3; break;
+	case RESOURCE_ID_IMAGE_FACEBOOK:  idx = 4; break;
+	case RESOURCE_ID_IMAGE_GMAIL:  idx = 5; break;
+	case RESOURCE_ID_IMAGE_GPLUS:  idx = 6; break;
+	case RESOURCE_ID_IMAGE_HANGOUTS:  idx = 7; break;
+	case RESOURCE_ID_IMAGE_IM:  idx = 8; break;
+	case RESOURCE_ID_IMAGE_INSTGRAM:  idx = 9; break;
+	case RESOURCE_ID_IMAGE_LINKEDIN:  idx = 10; break;
+	case RESOURCE_ID_IMAGE_MESSAGE:  idx = 11; break;
+	case RESOURCE_ID_IMAGE_NOBT:  idx = 12; break;
+	case RESOURCE_ID_IMAGE_PHONE:  idx = 13; break;
+	case RESOURCE_ID_IMAGE_SKYPE:  idx = 14; break;
+	case RESOURCE_ID_IMAGE_VK:  idx = 15; break;
+	case RESOURCE_ID_IMAGE_VOIP:  idx = 16; break;
+	case RESOURCE_ID_IMAGE_WARNING:  idx = 17; break;
+	case RESOURCE_ID_IMAGE_MORE_NOTIFICATIONS:  idx = 18; break;
+	case RESOURCE_ID_IMAGE_EMPTY:  idx = 19; break;
+	}    
+
+	if (idx == -1 )
+		return NULL;
+
+	if (notification_icons[idx] == NULL)
+		notification_icons[idx] = gbitmap_create_with_resource(id);
+
+	return notification_icons[idx];
+}
+
+
+
+void line_layer_update_callback(Layer * layer, GContext * ctx)
 {
 	graphics_context_set_fill_color(ctx, GColorWhite);
 	graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
 }
-
-void bottom_line_layer_update_callback(Layer * layer, GContext * ctx)
-{
-	graphics_context_set_fill_color(ctx, GColorWhite);
-	graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
-}
-
 
 void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 {
@@ -85,12 +127,23 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 	display_notifications();
 }
 
+void display_notification_icon(int id, int *current_pos)
+{
+	if (*current_pos < NUM_ICON_POSITIONS)
+	{
+		bitmap_layer_set_bitmap(image_layers[*current_pos], get_icon_for_id(id));
+		++(*current_pos);
+	}
+}
+
 void display_notifications()
 {
-	static char notifications[128+30];
+	int next_notification_icon_pos = 0;
+
+	//static char notifications[128+30];
 	int weather_warning = 0;
 
-	memset(notifications, 0, sizeof(notifications));
+	//memset(notifications, 0, sizeof(notifications));
 
 	switch(weather_code)
 	{
@@ -109,61 +162,69 @@ void display_notifications()
 			weather_warning = 1;
 			break;
 	}
-
+ 
+	
 	if (weather_warning >= 3)
-		strcat(notifications, "[!!WEATHER!!]\n");
+		display_notification_icon(RESOURCE_ID_IMAGE_EMERGENCY, &next_notification_icon_pos);
 	else if (weather_warning >= 1)
-		strcat(notifications, "[!] ");
+		display_notification_icon(RESOURCE_ID_IMAGE_WARNING, &next_notification_icon_pos);
 
 	if (bt_disconnected)
-		strcat(notifications, "[NO_BT]");
+		display_notification_icon(RESOURCE_ID_IMAGE_NOBT, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_CALENDAR)
-		strcat(notifications, "[CAL] "); // 6
+		display_notification_icon(RESOURCE_ID_IMAGE_CALENDAR, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_GMAIL)
-		strcat(notifications, "[GMAIL] "); // 8, 14
+		display_notification_icon(RESOURCE_ID_IMAGE_GMAIL, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_EMAIL)
-		strcat(notifications, "[EMAIL] "); // 8, 22 
+		display_notification_icon(RESOURCE_ID_IMAGE_EMAIL, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_PHONE)
-		strcat(notifications, "[PHONE] "); // 8, 30
+		display_notification_icon(RESOURCE_ID_IMAGE_PHONE, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_MESSAGES)
-		strcat(notifications, "[SMS] "); // 6, 36
+		display_notification_icon(RESOURCE_ID_IMAGE_MESSAGE, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_SKYPE)
-		strcat(notifications, "[SKYPE] "); // 8, 44
+		display_notification_icon(RESOURCE_ID_IMAGE_SKYPE, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_GOOGLEHANGOUTS)
-		strcat(notifications, "[GTALK] "); // 6, 50
+		display_notification_icon(RESOURCE_ID_IMAGE_HANGOUTS, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_GOOGLEPLUS)
-		strcat(notifications, "[G+] "); // 5, 55
+		display_notification_icon(RESOURCE_ID_IMAGE_GPLUS, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_VOIP)
-		strcat(notifications, "[VOIP] "); // 7, 62
+		display_notification_icon(RESOURCE_ID_IMAGE_VOIP, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_IM)
-		strcat(notifications, "[IM] "); // 5, 67
+		display_notification_icon(RESOURCE_ID_IMAGE_IM, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_FACEBOOK)
-		strcat(notifications, "[FB] "); // 5, 72
+		display_notification_icon(RESOURCE_ID_IMAGE_FACEBOOK, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_LINKEDIN)
-		strcat(notifications, "[LN] "); // 5, 77
+		display_notification_icon(RESOURCE_ID_IMAGE_LINKEDIN, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_VK)
-		strcat(notifications, "[VK] "); // 5, 83
+		display_notification_icon(RESOURCE_ID_IMAGE_VK, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_INSTGRAM)
-		strcat(notifications, "[INSTGRAM] "); // 11, 94
+		display_notification_icon(RESOURCE_ID_IMAGE_INSTGRAM, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_UNKNOWN)
-		strcat(notifications, "[+++] ");
+		display_notification_icon(RESOURCE_ID_IMAGE_MORE_NOTIFICATIONS, &next_notification_icon_pos);
 
-	text_layer_set_text(notifications_layer, notifications);
+//	text_layer_set_text(notifications_layer, notifications);
+
+
+	// fill the rest with empty icons, - no notifications for now
+	while (next_notification_icon_pos < NUM_ICON_POSITIONS)
+	{
+		display_notification_icon(RESOURCE_ID_IMAGE_EMPTY, &next_notification_icon_pos);
+	}
 }
 
 char pct_to_hex(int pct)
@@ -389,7 +450,7 @@ void received_data(DictionaryIterator *received, void *context)
 	}
 	else if (weather_code != 0 ) // alert disappeared
 	{
-		weather_code = 127;
+		weather_code = DEFAULT_WEATHER_CODE;
 	}
 	
 	display_notifications();
@@ -414,18 +475,36 @@ void send_request()
 
 void handle_deinit(void)
 {
+	int idx = 0;
+
 	tick_timer_service_unsubscribe();
 	battery_state_service_unsubscribe();
+
+	for (idx = 0; idx < NUM_ICON_POSITIONS; ++idx)
+		bitmap_layer_destroy(image_layers[idx]);
+
+	for (idx = 0; idx < NUM_ICONS; ++idx)
+	{
+		if (notification_icons[idx] != NULL)
+			gbitmap_destroy(notification_icons[idx]);
+	}
 }
 
 void handle_init(void)
 {
+	int idx;
+	GRect bounds;
+
+	for (idx = 0; idx < NUM_ICONS; ++idx)
+		notification_icons[idx] = NULL;
+
 	window = window_create();
 	window_stack_push(window, true /* Animated */ );
 	window_set_background_color(window, GColorBlack);
 
 	Layer *window_layer = window_get_root_layer(window);
 
+	/*
 	// Notifications text layer
 	notifications_layer = text_layer_create(GRect(4, 0, 144-8, 66));
 	text_layer_set_text_color(notifications_layer, GColorWhite);
@@ -434,6 +513,31 @@ void handle_init(void)
 			    fonts_get_system_font
 			    (FONT_KEY_GOTHIC_18));
 	layer_add_child(window_layer, text_layer_get_layer(notifications_layer));
+*/
+	// Notification icon layers 
+
+	bounds.size.w = 28;
+	bounds.size.h = 28;
+	
+	for (idx = 0; idx < NUM_ICON_POSITIONS; ++idx)
+	{
+		if (idx < NUM_ICON_POSITIONS / 2 )
+		{
+			bounds.origin.x = idx * 28;
+			bounds.origin.y = 0;
+		}
+		else
+		{
+			bounds.origin.x = (idx-NUM_ICON_POSITIONS/2) * 28;
+			bounds.origin.y = 28;
+		}
+
+		image_layers[idx] = bitmap_layer_create(bounds);
+  		bitmap_layer_set_alignment(image_layers[idx], GAlignCenter);
+  		
+		layer_add_child(window_layer, bitmap_layer_get_layer(image_layers[idx]));
+	}
+
 
 	// Date layer
 	text_date_layer = text_layer_create(GRect(8, 66, 114 - 8, 25));
@@ -456,13 +560,13 @@ void handle_init(void)
 	// Upper line layer
 	GRect top_line_frame = GRect(0, 94, 144, 1);
 	top_line_layer = layer_create(top_line_frame);
-	layer_set_update_proc(top_line_layer, top_line_layer_update_callback);
+	layer_set_update_proc(top_line_layer, line_layer_update_callback);
 	layer_add_child(window_layer, top_line_layer);
 
 	// Bottom line layer
 	GRect bottom_line_frame = GRect(0, 146, 144, 1);
 	bottom_line_layer = layer_create(bottom_line_frame);
-	layer_set_update_proc(bottom_line_layer, bottom_line_layer_update_callback);
+	layer_set_update_proc(bottom_line_layer, line_layer_update_callback);
 	layer_add_child(window_layer, bottom_line_layer);
 
 

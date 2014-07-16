@@ -18,7 +18,103 @@
         "type": "png",
         "name": "IMAGE_MENU_ICON",
         "file": "images/menu_icon_simplicity.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_CALENDAR",
+        "file": "images/calendar.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_EMAIL",
+        "file": "images/email.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_EMERGENCY",
+        "file": "images/emergency.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_FACEBOOK",
+        "file": "images/facebook.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_GMAIL",
+        "file": "images/gmail.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_GPLUS",
+        "file": "images/gplus.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_HANGOUTS",
+        "file": "images/hangouts.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_IM",
+        "file": "images/im.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_INSTGRAM",
+        "file": "images/instgram.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_LINKEDIN",
+        "file": "images/linkedin.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_MESSAGE",
+        "file": "images/message.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_NOBT",
+        "file": "images/nobt.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_PHONE",
+        "file": "images/phone.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_SKYPE",
+        "file": "images/skype.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_VK",
+        "file": "images/vk.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_VOIP",
+        "file": "images/voip.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_WARNING",
+        "file": "images/warning.png"
+      }, 
+      {
+	 "type": "png", 
+	 "name": "IMAGE_MORE_NOTIFICATIONS", 
+	 "file": "images/more_notifications.png"
+      }, 
+      {
+	 "type": "png", 
+	 "name": "IMAGE_EMPTY", 
+	 "file": "images/empty.png"
       }
+
     ]
   }
 }
