@@ -15,8 +15,6 @@ TextLayer *text_time_layer;
 Layer *top_line_layer;
 Layer *bottom_line_layer;
 
-//TextLayer *notifications_layer;
-
 TextLayer *weather_status_layer;
 TextLayer *phone_batt_layer;
 TextLayer *watch_batt_layer;
@@ -37,14 +35,10 @@ void display_indicators();
 // Menu items can optionally have an icon drawn with them
 GBitmap *notification_icons[NUM_ICONS];
 
-//BitmapLayer* image_layers[NUM_ICON_POSITIONS];
-
 Layer* notification_layer = NULL;
 
 static GBitmap *get_icon_for_id(int id)
 {
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "get_icon_for_id, id=%d", id);
-
 	int idx = -1; 
 
 	// not a very best solution, but have no std::map<int,int>
@@ -72,17 +66,12 @@ static GBitmap *get_icon_for_id(int id)
 	case RESOURCE_ID_IMAGE_EMPTY:  idx = 19; break;
 	}    
 	
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "get_icon_for_id, mapped to idx %d", idx);
-
 	if (idx == -1 )
 		return NULL;
 
 	if (notification_icons[idx] == NULL)
 	{
-		APP_LOG(APP_LOG_LEVEL_DEBUG, "get_icon_for_id: image resource is not yet has been loaded, loading");
 		notification_icons[idx] = gbitmap_create_with_resource(id);
-
-		APP_LOG(APP_LOG_LEVEL_DEBUG, "get_icon_for_id: loaded");
 	}
 
 	return notification_icons[idx];
@@ -142,8 +131,6 @@ void display_notification_icon(GContext* ctx, int id, int *current_pos)
 {
 	GRect bounds; 
 
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "current_pos=%p, *current_pos=%d", current_pos, *current_pos);
-
 	if (!(*current_pos < NUM_ICON_POSITIONS))
 		return;
 
@@ -174,13 +161,10 @@ void notifications_update_callback(Layer * layer, GContext * ctx)
 {
 	int next_notification_icon_pos = 0;
 
-	//static char notifications[128+30];
 	int weather_warning = 0;
 
 	graphics_context_set_fill_color(ctx, GColorBlack);
 	graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
-
-	//memset(notifications, 0, sizeof(notifications));
 
 	switch(weather_code)
 	{
@@ -252,15 +236,6 @@ void notifications_update_callback(Layer * layer, GContext * ctx)
 
 	if (notifications_bitmask & NOTIFICATION_UNKNOWN)
 		display_notification_icon(ctx, RESOURCE_ID_IMAGE_MORE_NOTIFICATIONS, &next_notification_icon_pos);
-
-//	text_layer_set_text(notifications_layer, notifications);
-
-
-	// fill the rest with empty icons, - no notifications for now
-	/*while (next_notification_icon_pos < NUM_ICON_POSITIONS)
-	{
-		display_notification_icon(RESOURCE_ID_IMAGE_EMPTY, &next_notification_icon_pos);
-	}*/
 }
 
 char pct_to_hex(int pct)
@@ -516,13 +491,6 @@ void handle_deinit(void)
 	tick_timer_service_unsubscribe();
 	battery_state_service_unsubscribe();
 
-	/*
-	for (idx = 0; idx < NUM_ICON_POSITIONS; ++idx)
-		bitmap_layer_destroy(image_layers[idx]);
-*/
-
-//#warning " more layer_destroy-s "
-
 	layer_destroy(notification_layer);
 
 	for (idx = 0; idx < NUM_ICONS; ++idx)
@@ -535,7 +503,6 @@ void handle_deinit(void)
 void handle_init(void)
 {
 	int idx;
-	//GRect bounds;
 
 	for (idx = 0; idx < NUM_ICONS; ++idx)
 		notification_icons[idx] = NULL;
@@ -546,43 +513,8 @@ void handle_init(void)
 
 	Layer *window_layer = window_get_root_layer(window);
 
-	
-	// Notifications text layer
-	/*notifications_layer = text_layer_create(GRect(4, 0, 144-8, 66));
-	text_layer_set_text_color(notifications_layer, GColorWhite);
-	text_layer_set_background_color(notifications_layer, GColorClear);
-	text_layer_set_font(notifications_layer,
-			    fonts_get_system_font
-			    (FONT_KEY_GOTHIC_18));
-	layer_add_child(window_layer, text_layer_get_layer(notifications_layer));
-*/
-	// Notification icon layers 
 
-	/*bounds.size.w = 28;
-	bounds.size.h = 28;
-
-	for (idx = 0; idx < NUM_ICON_POSITIONS; ++idx)
-	{
-		if (idx < NUM_ICON_POSITIONS / 2 )
-		{
-			bounds.origin.x = idx * 28;
-			bounds.origin.y = 0;
-		}
-		else
-		{
-			bounds.origin.x = (idx-NUM_ICON_POSITIONS/2) * 28;
-			bounds.origin.y = 28;
-		}
-	
-		APP_LOG(APP_LOG_LEVEL_DEBUG, "handle_init: icon idx %d, bounds: %dx%d-%dx%d", idx, 
-					bounds.origin.x, bounds.origin.y, bounds.size.w, bounds.size.h);
-
-		image_layers[idx] = bitmap_layer_create(bounds);
-  		bitmap_layer_set_alignment(image_layers[idx], GAlignCenter);
-  		
-		layer_add_child(window_layer, bitmap_layer_get_layer(image_layers[idx]));
-	}*/
-
+	// Notifications layer
 	notification_layer = layer_create( 
 			(GRect) { .origin = { 0, 0 }, 
 			 	   .size = { 168, 66 } });
@@ -669,12 +601,9 @@ void handle_init(void)
 
 int main(void)
 {
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "entering handle_init()");
 	handle_init();
 
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "entering app_event_loop()");
 	app_event_loop();
 
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "entering handle_deinit()");
 	handle_deinit();
 }
