@@ -5,6 +5,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
+import android.util.SparseArray;
 
 import com.github.quarck.qrckwatch.weather.NetworkClient;
 import com.github.quarck.qrckwatch.weather.Parser;
@@ -24,6 +25,14 @@ public class WeatherService extends IntentService
 	
 	private static long lastWeatherUpdate = 0;
 
+	public static class WeatherBundle
+	{
+		public Weather weather;
+		public long lastUpadted;
+	}
+	
+	private static SparseArray<WeatherBundle> lastWeatherResults = new SparseArray<WeatherBundle>();
+	
 	public WeatherService() 
 	{
 		super("WeatherService");
@@ -94,6 +103,14 @@ public class WeatherService extends IntentService
 						newWeatherCode = forecastCode.code;
 						Lw.d(TAG, "Updated[2] weather data to: code: " + newWeatherCode + ", level: " + newWeatherSevirity);
 					}
+					
+					synchronized(lastWeatherResults)
+					{
+						WeatherBundle wb = new WeatherBundle();
+						wb.weather = lastWeather;
+						wb.lastUpadted = System.currentTimeMillis();
+						lastWeatherResults.put(locations[idx], wb);
+					}
 				}
 				else
 				{
@@ -145,6 +162,18 @@ public class WeatherService extends IntentService
 		long current = System.currentTimeMillis();
 		
 		return (current - lastWeatherUpdate) / 1000;
+	}
+	
+	public static WeatherBundle getWeatherForLocation(int location)
+	{
+		WeatherBundle ret = null;
+		
+		synchronized (lastWeatherResults)
+		{
+			ret = lastWeatherResults.get(location, null);
+		}
+		
+		return ret;
 	}
 	
 }

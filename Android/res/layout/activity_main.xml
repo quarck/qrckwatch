@@ -124,7 +124,7 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/editText5"
         android:layout_marginTop="16dp"
-        android:text="Save Weather" />
+        android:text="Save / Update" />
 
     <TextView
         android:id="@+id/textViewLastUpdated"
@@ -134,5 +134,55 @@
         android:layout_alignParentRight="true"
         android:text="Weather Last Updated:"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/buttonL1W"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textView5"
+        android:layout_below="@+id/buttonSaveWeather"
+        android:text="L1W" />
+
+    <Button
+        android:id="@+id/buttonL2W"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/buttonL1W"
+        android:layout_below="@+id/buttonL1W"
+        android:text="L2W" />
+
+    <Button
+        android:id="@+id/buttonL3W"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/buttonL2W"
+        android:layout_toRightOf="@+id/buttonL1W"
+        android:text="L3W" />
+
+    <Button
+        android:id="@+id/buttonL4W"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/buttonL1W"
+        android:layout_toRightOf="@+id/buttonL1W"
+        android:text="L4W" />
+
+    <Button
+        android:id="@+id/buttonL5W"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/buttonL3W"
+        android:layout_alignBottom="@+id/buttonL3W"
+        android:layout_toRightOf="@+id/buttonL3W"
+        android:text="L5W" />
+
+    <Button
+        android:id="@+id/buttonCfg"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="Cfg" />
 
 </RelativeLayout>

@@ -42,8 +42,6 @@ public class MainActivity extends Activity
 
 	private Settings settings = null;
 	
-	private boolean shownSecurityPane = false;
-	
 	private EditText textView1 = null;
 	private EditText textView2 = null;
 	private EditText textView3 = null;
@@ -95,6 +93,41 @@ public class MainActivity extends Activity
 					}
 				}
 			);
+		
+		((Button)findViewById(R.id.buttonL1W)).setOnClickListener( 
+				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(1); } } 
+			);
+		((Button)findViewById(R.id.buttonL2W)).setOnClickListener( 
+				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(2); } } 
+			);
+		((Button)findViewById(R.id.buttonL3W)).setOnClickListener( 
+				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(3); } } 
+			);
+		((Button)findViewById(R.id.buttonL4W)).setOnClickListener( 
+				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(4); } } 
+			);
+		((Button)findViewById(R.id.buttonL5W)).setOnClickListener( 
+				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(5); } } 
+			);
+
+		((Button)findViewById(R.id.buttonCfg)).setOnClickListener( 
+				new OnClickListener()  { @Override public void onClick(View arg0) { configSecurity(); } } 
+			);
+
+		//
+	}
+	
+	protected void configSecurity()
+	{
+		Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+		startActivity(intent);
+	}
+
+	private void displayWeather(int locCode)
+	{
+		Intent in = new Intent(this, WeatherDetailActivity.class);
+		in.putExtra("w", locCode);
+		this.startActivity(in);
 	}
 	
 	@Override
@@ -124,11 +157,5 @@ public class MainActivity extends Activity
 		Lw.d(TAG, "onResume");
 		super.onResume();
 
-		if (!shownSecurityPane)
-		{
-			shownSecurityPane = true;
-			Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-			startActivity(intent);
-		}
 	}
 }

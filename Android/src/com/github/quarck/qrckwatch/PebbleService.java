@@ -22,7 +22,7 @@ public class PebbleService
 		{
 			Alarm.setAlarmMillis(ctx, 5*60*1000); // send periodic status updates to pebble every 5 mins
 			
-			WeatherServiceAlarm.setAlarmHours(ctx,  3);// run weather check every 3 hours
+			WeatherServiceAlarm.setAlarmHours(ctx,  1);// run weather check every 1 hours
 			
 			WeatherService.runWeatherUpdate(ctx);
 			
