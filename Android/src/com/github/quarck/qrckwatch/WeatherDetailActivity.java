@@ -9,6 +9,7 @@ import android.app.ActionBar;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -95,76 +96,94 @@ public class WeatherDetailActivity extends Activity
 	
 			TextView tv = (TextView)rootView.findViewById(R.id.textViewWeatherDetails);
 			
+			TextView tvlu = (TextView)rootView.findViewById(R.id.textViewLastUpdated);
+			
 			WeatherService.WeatherBundle wb = ((WeatherDetailActivity)getActivity()).weatherBundle;
 			
 			if (wb != null)
 			{
 				StringBuilder sb = new StringBuilder();
 				
-				sb.append("Last updated: ");
-				sb.append((System.currentTimeMillis() - wb.lastUpadted) / 60000);
-				sb.append(" minutes ago\n");
-				
 				Weather w = wb.weather;
 				
-				sb.append("Current conditions:\n");
-				sb.append("Wind: direction: "); sb.append(w.windDirection);
-				sb.append(", speed: "); sb.append(w.windSpeed); sb.append("\n");
+				sb.append("<h3>CURRENT:</h3><b>"); sb.append(WeatherCodes.getDesciption(w.currentCode)); sb.append("</b>,");
+				sb.append(" "); sb.append(w.currentTemp); 
+				sb.append("&deg; <i>[real feel: "); sb.append(w.windChill); sb.append("&deg;]</i> <br/>");
+
 				
-				sb.append("Humidity: "); sb.append(w.humidity); sb.append("\n");
-				sb.append("Visibility: "); sb.append(w.visibility); sb.append("\n");
-				sb.append("Pressure: "); sb.append(w.pressure); sb.append("\n");
+				sb.append("Wind: &#10138;"); sb.append(w.windDirection);
+				sb.append("&deg;, "); sb.append(w.windSpeed); sb.append(" km/h<br/>");
 				
-				sb.append("Temperature: "); sb.append(w.currentTemp); 
-				sb.append(", real feel: "); sb.append(w.windChill); sb.append("\n");
-				sb.append("Cond: "); sb.append(WeatherCodes.getDesciption(w.currentCode)); sb.append("\n");
+				sb.append("Humidity: "); sb.append(w.humidity); sb.append("%, ");
+				sb.append("Pressure: "); sb.append(w.pressure); sb.append("mb<br/>");
+				sb.append("Visibility: "); sb.append(w.visibility); sb.append(" km<br/>");
+				
 	
+				sb.append("<br/><h3>FORECAST:</h3>");
+				
 				for (int idx=0; idx< w.forecasts.size(); idx++)
 				{
 					DayForecast forecast = w.forecasts.get(idx);
 					
 					if (forecast != null)
 					{
-						sb.append("\nForecast for ");
-						sb.append(forecast.date.getDate());
-						sb.append("/");
-						sb.append(forecast.date.getMonth());
-						sb.append("/");
-						sb.append(forecast.date.getYear()+1900);
-						if (forecast == w.forecast)
-							sb.append(" [CURRENT]");
-						sb.append(":\n");
-	
-						sb.append("Temperature: "); sb.append(forecast.tempLow); sb.append(" to ");
-						sb.append(forecast.tempHigh); sb.append("\n");
-						
-						sb.append("Cond: "); sb.append(WeatherCodes.getDesciption(forecast.code)); sb.append("  ");
+						String specialOpen = null, specialClose = null;
 						
 						int severityLevel = WeatherCodes.getSeverityLevel(forecast.code);
 						
 						if (severityLevel > 1)
 						{
-							sb.append(" <--- ");
-							
-							if (severityLevel <= 2)
-								sb.append("Warning\n");
-							else if (severityLevel <= 5)
-								sb.append("!! WARNING !!\n");
+							if (severityLevel <= 4)
+							{
+								specialOpen = "<font color=\"red\">";
+								specialClose = "</font>";
+							}
+							else if (severityLevel <= 6)
+							{
+								specialOpen = "<font color=\"red\">[!!] ";
+								specialClose = "</font>";
+							}
 							else 
-								sb.append("!!!! EMERGENCY !!!!\n");
+							{
+								specialOpen = "<font color=\"red\">[!!!!] ";
+								specialClose = "</font>";
+							}
 						}
-						else
-						{
-							sb.append("\n");
-						}
+
+						if (idx != 0)
+							sb.append("<br/>");
+						
+						sb.append("<font color=\"blue\">");
+						sb.append(forecast.date.getDate());
+						sb.append("/");
+						sb.append(forecast.date.getMonth());
+						sb.append("/");
+						sb.append(forecast.date.getYear()+1900);
+						sb.append("</font>");
+						sb.append(":<b> ");
+
+						sb.append("<font color=\"#005f00\"><i>");
+						sb.append(forecast.tempLow); sb.append("&ndash;");
+						sb.append(forecast.tempHigh); sb.append("&deg;</i></font>, ");
+					
+						if (specialOpen != null)
+							sb.append(specialOpen);
+						sb.append(WeatherCodes.getDesciption(forecast.code)); sb.append("</b>");
+						if (specialClose != null)
+							sb.append(specialClose);
+							
+						sb.append("<br/>");
 					}
 				}
 				
-				tv.setText(sb.toString());
+				tv.setText(Html.fromHtml(sb.toString()));
+
+				tvlu.setText("Last updated: " + ((System.currentTimeMillis() - wb.lastUpadted) / 60000) + " minutes ago");
 			}
 			else
 			{
 				tv.setText("No weather data");
+				tvlu.setText("Last updated: never");
 			}
 			
 			

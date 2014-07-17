@@ -17,13 +17,72 @@
         android:text="Weather Locations:"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
+	<TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBaseline="@+id/buttonL1W"
+        android:text="Loc1: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBaseline="@+id/buttonL2W"
+        android:text="Loc2: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBaseline="@+id/buttonL3W"
+        android:text="Loc3: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBaseline="@+id/buttonL4W"
+        android:text="Loc4: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBaseline="@+id/buttonL5W"
+        android:text="Loc5: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    
+
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/textView1"
+        android:layout_toLeftOf="@+id/buttonL1W"
+        android:layout_alignBaseline="@+id/buttonL1W"
+        android:ems="10"
+        android:inputType="number"
+        android:text="0" />
+    
+    
     <EditText
         android:id="@+id/editText2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/editText1"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/editText1"
+        android:layout_toRightOf="@+id/textView2"
+        android:layout_toLeftOf="@+id/buttonL2W"
+        android:layout_alignBaseline="@+id/buttonL2W"
         android:ems="10"
         android:inputType="number"
         android:text="0" />
@@ -32,9 +91,9 @@
         android:id="@+id/editText3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/editText2"
         android:layout_toRightOf="@+id/textView3"
+        android:layout_toLeftOf="@+id/buttonL3W"
+        android:layout_alignBaseline="@+id/buttonL3W"
         android:ems="10"
         android:inputType="number"
         android:text="0" />
@@ -43,9 +102,9 @@
         android:id="@+id/editText4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/editText3"
         android:layout_toRightOf="@+id/textView4"
+        android:layout_toLeftOf="@+id/buttonL4W"
+        android:layout_alignBaseline="@+id/buttonL4W"
         android:ems="10"
         android:inputType="number"
         android:text="0" />
@@ -54,76 +113,61 @@
         android:id="@+id/editText5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/editText4"
         android:layout_toRightOf="@+id/textView5"
+        android:layout_toLeftOf="@+id/buttonL5W"
+        android:layout_alignBaseline="@+id/buttonL5W"
         android:ems="10"
         android:inputType="number"
         android:text="0" />
 
-    <EditText
-        android:id="@+id/editText1"
+
+    <Button
+        android:id="@+id/buttonL1W"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/editText3"
-        android:layout_below="@+id/textViewWeatherLocsLabel"
-        android:layout_toRightOf="@+id/textView1"
-        android:ems="10"
-        android:inputType="number"
-        android:text="0" />
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/textViewWeatherLocsLabel"        
+        android:text="L1W" />
 
-    <TextView
-        android:id="@+id/textView5"
+    <Button
+        android:id="@+id/buttonL2W"
+        
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/editText5"
-        android:layout_alignParentLeft="true"
-        android:text="Loc5: "
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/buttonL1W" 
+        android:text="L2W" />
 
-    <TextView
-        android:id="@+id/textView1"
+    <Button
+        android:id="@+id/buttonL3W"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/editText2"
-        android:layout_alignParentLeft="true"
-        android:text="Loc1: "
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/buttonL2W" 
+        android:text="L3W" />
 
-    <TextView
-        android:id="@+id/textView2"
+    <Button
+        android:id="@+id/buttonL4W"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/editText2"
-        android:layout_alignParentLeft="true"
-        android:text="Loc2: "
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/buttonL3W"         
+        android:text="L4W" />
 
-    <TextView
-        android:id="@+id/textView3"
+    <Button
+        android:id="@+id/buttonL5W"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/editText4"
-        android:layout_alignParentLeft="true"
-        android:text="Loc3: "
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/editText5"
-        android:layout_alignParentLeft="true"
-        android:text="Loc4: "
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/buttonL4W" 
+        android:text="L5W" />
+    
     <Button
         android:id="@+id/buttonSaveWeather"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/editText5"
-        android:layout_marginTop="16dp"
+        android:layout_below="@+id/buttonL5W"
         android:text="Save / Update" />
 
     <TextView
@@ -136,47 +180,6 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button
-        android:id="@+id/buttonL1W"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textView5"
-        android:layout_below="@+id/buttonSaveWeather"
-        android:text="L1W" />
-
-    <Button
-        android:id="@+id/buttonL2W"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/buttonL1W"
-        android:layout_below="@+id/buttonL1W"
-        android:text="L2W" />
-
-    <Button
-        android:id="@+id/buttonL3W"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/buttonL2W"
-        android:layout_toRightOf="@+id/buttonL1W"
-        android:text="L3W" />
-
-    <Button
-        android:id="@+id/buttonL4W"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/buttonL1W"
-        android:layout_toRightOf="@+id/buttonL1W"
-        android:text="L4W" />
-
-    <Button
-        android:id="@+id/buttonL5W"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/buttonL3W"
-        android:layout_alignBottom="@+id/buttonL3W"
-        android:layout_toRightOf="@+id/buttonL3W"
-        android:text="L5W" />
-
-    <Button
         android:id="@+id/buttonCfg"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
@@ -185,4 +188,5 @@
         android:layout_alignParentLeft="true"
         android:text="Cfg" />
 
+    
 </RelativeLayout>
