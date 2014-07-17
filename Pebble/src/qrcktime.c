@@ -431,6 +431,8 @@ void display_indicators()
 
 	if (weather_cd != NULL)
 		text_layer_set_text(weather_status_layer, weather_cd);
+	else
+		text_layer_set_text(weather_status_layer, "");
 
 	text_layer_set_text(phone_batt_layer, phone_charge_text);
 	text_layer_set_text(watch_batt_layer, watch_charge_text);
