@@ -113,6 +113,11 @@
 	 "type": "png", 
 	 "name": "IMAGE_EMPTY", 
 	 "file": "images/empty.png"
+      },
+      {
+	 "type": "png", 
+	 "name": "IMAGE_VIBER", 
+	 "file": "images/viber.png"
       }
 
     ]
