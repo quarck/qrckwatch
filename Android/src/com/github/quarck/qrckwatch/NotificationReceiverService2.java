@@ -55,7 +55,7 @@ public class NotificationReceiverService2 extends NotificationListenerService
 	@Override
 	public IBinder onBind(Intent intent)
 	{
-		PebbleService.checkAlarm(this);
+		PebbleService.checkInitialized(this);
 		return super.onBind(intent);
 	}
 	
@@ -69,7 +69,7 @@ public class NotificationReceiverService2 extends NotificationListenerService
 			return;
 		}
 
-		PebbleService.checkAlarm(this);
+		PebbleService.checkInitialized(this);
 
 		StatusBarNotification[] notifications = null;
 

@@ -18,8 +18,6 @@ import com.getpebble.android.kit.util.PebbleDictionary;
 
 public class DataReceiver extends BroadcastReceiver 
 {
-	public final static UUID pebbleAppUUID = UUID.fromString("0b633775-2a83-4a28-9d0f-2c06ad154251");
-	
 	public void receiveData(final Context context, final int transactionId, final PebbleDictionary data)
 	{
 		PebbleKit.sendAckToPebble(context, transactionId);
@@ -31,7 +29,7 @@ public class DataReceiver extends BroadcastReceiver
 	{
 		final UUID receivedUuid = (UUID) intent.getSerializableExtra(APP_UUID);
 
-		if (!receivedUuid.equals(pebbleAppUUID)) 
+		if (!receivedUuid.equals(PebbleService.pebbleAppUUID)) 
 		{
 			return;
 		}
