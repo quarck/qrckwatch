@@ -46,6 +46,7 @@ public class CommonAppsRegistry
 	public static final int LinkedIn	= 0x1000;
 	public static final int VK	= 0x2000;
 	public static final int Instgram = 0x4000;
+	public static final int Viber = 0x8000;
 	
 	private static HashMap<String, Integer> packages = new HashMap<String, Integer>();
 	
@@ -73,7 +74,7 @@ public class CommonAppsRegistry
 		packages.put("com.facebook.katana", Integer.valueOf(Facebook));
 		packages.put("com.facebook.orca", Integer.valueOf(Facebook));
 		
-		packages.put("com.viber.voip", Integer.valueOf(VOiP));
+		packages.put("com.viber.voip", Integer.valueOf(Viber));
 		
 		packages.put("com.whatsapp", Integer.valueOf(IM));
 		

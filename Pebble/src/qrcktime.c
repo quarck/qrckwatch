@@ -3,7 +3,7 @@
 #include "protocol.h"
 #include "weathercodes.h"
 
-#define NUM_ICONS 19
+#define NUM_ICONS 21
 #define NUM_ICON_POSITIONS 10
 
 #define DEFAULT_WEATHER_CODE 127
@@ -64,6 +64,7 @@ static GBitmap *get_icon_for_id(int id)
 	case RESOURCE_ID_IMAGE_WARNING:  idx = 17; break;
 	case RESOURCE_ID_IMAGE_MORE_NOTIFICATIONS:  idx = 18; break;
 	case RESOURCE_ID_IMAGE_EMPTY:  idx = 19; break;
+	case RESOURCE_ID_IMAGE_VIBER:  idx = 20; break;
 	}    
 	
 	if (idx == -1 )
@@ -203,6 +204,9 @@ void notifications_update_callback(Layer * layer, GContext * ctx)
 
 	if (notifications_bitmask & NOTIFICATION_PHONE)
 		display_notification_icon(ctx, RESOURCE_ID_IMAGE_PHONE, &next_notification_icon_pos);
+
+	if (notifications_bitmask & NOTIFICATION_VIBER)
+		display_notification_icon(ctx, RESOURCE_ID_IMAGE_VIBER, &next_notification_icon_pos);
 
 	if (notifications_bitmask & NOTIFICATION_MESSAGES)
 		display_notification_icon(ctx, RESOURCE_ID_IMAGE_MESSAGE, &next_notification_icon_pos);
