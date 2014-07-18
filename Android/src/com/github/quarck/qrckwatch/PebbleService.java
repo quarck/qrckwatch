@@ -1,6 +1,11 @@
 package com.github.quarck.qrckwatch;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.getpebble.android.kit.PebbleKit;
 import com.getpebble.android.kit.PebbleKit.PebbleAckReceiver;
@@ -43,7 +48,7 @@ public class PebbleService
 			
 			Alarm.setAlarmMillis(ctx, 5*60*1000); // send periodic status updates to pebble every 5 mins
 			
-			WeatherServiceAlarm.setAlarmHours(ctx,  1);// run weather check every 1 hours
+			WeatherServiceAlarm.setAlarmHours(ctx,  1);// run weather check every 1 hour(s)
 			
 			WeatherService.runWeatherUpdate(ctx);
 			
@@ -63,14 +68,14 @@ public class PebbleService
 				public void receiveAck(Context context, int transactionId) 
 				{
 					Lw.d(TAG, "Received ack for transaction " + transactionId);
-					
+
 					synchronized (lock)
 					{
 						failCount = 0;
 					}
 				}
 			});
-		
+
 		PebbleKit.registerReceivedNackHandler(ctx, 
 			new PebbleNackReceiver(pebbleAppUUID) 
 			{
@@ -78,13 +83,13 @@ public class PebbleService
 				public void receiveNack(Context context, int transactionId) 
 				{
 					boolean couldResend = false;
-					
+
 					synchronized (lock)
 					{
 						if (++failCount < 10)
 							couldResend = true;
 					}
-					
+
 					if (couldResend)
 					{
 						Lw.d(TAG, "Received nack for transaction, re-sending status update " + transactionId);						
@@ -160,5 +165,24 @@ public class PebbleService
 	{
 		sendUpdateToPebble(context);
 		checkInitialized(context);
+	}
+	
+	public static void sendNotificationToPebble(Context ctx, String title, String body) 
+	{
+	    final Intent i = new Intent("com.getpebble.action.SEND_NOTIFICATION");
+
+	    final Map data = new HashMap();
+	    data.put("title", title);
+	    data.put("body", body);
+	    
+	    final JSONObject jsonData = new JSONObject(data);
+	    final String notificationData = new JSONArray().put(jsonData).toString();
+
+	    i.putExtra("messageType", "PEBBLE_ALERT");
+	    i.putExtra("sender", "QrckWatch");
+	    i.putExtra("notificationData", notificationData);
+
+	    Lw.d(TAG, "About to send a modal alert to Pebble: " + notificationData);
+	    ctx.sendBroadcast(i);
 	}
 }

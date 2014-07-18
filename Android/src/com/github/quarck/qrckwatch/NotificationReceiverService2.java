@@ -27,6 +27,8 @@
 
 package com.github.quarck.qrckwatch;
 
+import android.app.Notification;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
@@ -100,13 +102,34 @@ public class NotificationReceiverService2 extends NotificationListenerService
 				
 				String packageName = notification.getPackageName();
 				Lw.d(TAG, "Package name is " + packageName);
-				
+
 				newBitmask |= CommonAppsRegistry.getMaskBitForPackage(packageName);
 			}
 		}
 		else
 		{
 			Lw.e(TAG, "Can't get list of notifications. WE HAVE NO PERMISSION!! ");
+		}
+		
+		if (isAdded)
+		{
+			int notificationBit = 
+					CommonAppsRegistry.getMaskBitForPackage(
+								updNotification.getPackageName());
+			
+			if (notificationBit == CommonAppsRegistry.Viber ||
+					notificationBit == CommonAppsRegistry.Skype)
+			{
+				Notification ntfy = updNotification.getNotification();
+				
+				if (ntfy != null)
+				{
+					PebbleService.sendNotificationToPebble(
+						this, 
+						(notificationBit == CommonAppsRegistry.Viber) ? "Viber" : "Skype", 
+						ntfy.tickerText.toString());
+				}
+			}
 		}
 
 		PebbleService.setNotificationsMask(this, newBitmask);
