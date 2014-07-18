@@ -25,6 +25,7 @@ int8_t watch_is_charging = 0;
 int8_t watch_charge_level = -1; // values outside of 0...100 are ... N/A
 
 int8_t bt_disconnected = 1;
+time_t last_bt_update = 0;
 
 int8_t weather_code = DEFAULT_WEATHER_CODE; // out of range
 
@@ -122,6 +123,11 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 	text_layer_set_text(text_time_layer, time_text);
 
 	bt_disconnected = bluetooth_connection_service_peek() ? 0 : 1; 
+
+	if (time(NULL) - last_bt_update > 450) // 7.5 mins
+	{
+		bt_disconnected = 1;
+	}
 
 	display_indicators();
 	
@@ -446,7 +452,9 @@ void received_data(DictionaryIterator *received, void *context)
 {
 	Tuple *entry = NULL;
 
-	bt_disconnected = 0; 
+	bt_disconnected = 0;
+
+	last_bt_update = time(NULL);
 
 	entry = dict_find(received, ENTRY_NOTIFICATIONS_BITMASK); 
 	if (entry != NULL)
@@ -512,6 +520,8 @@ void handle_init(void)
 
 	for (idx = 0; idx < NUM_ICONS; ++idx)
 		notification_icons[idx] = NULL;
+
+	last_bt_update = time(NULL);
 
 	window = window_create();
 	window_stack_push(window, true /* Animated */ );
