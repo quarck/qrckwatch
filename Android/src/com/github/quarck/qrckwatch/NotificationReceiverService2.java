@@ -119,22 +119,33 @@ public class NotificationReceiverService2 extends NotificationListenerService
 			
 			if (notificationBit == CommonAppsRegistry.Viber ||
 					notificationBit == CommonAppsRegistry.Skype)
+			//if (!updNotification.isOngoing() && updNotification.getNotification().vibrate != null)
 			{
 				Notification ntfy = updNotification.getNotification();
 				
 				if (ntfy != null)
 				{
-					PebbleService.sendNotificationToPebble(
+			        NotificationParser parser = new NotificationParser(this, ntfy);
+
+			        String secondaryTitle = parser.title;
+			        String text = parser.text.trim();
+
+			        if (ntfy.tickerText != null && (text == null || text.trim().length() == 0)) 
+			        {
+			                text = ntfy.tickerText.toString();
+			        }
+
+			        PebbleService.sendNotificationToPebble(
 						this, 
-						(notificationBit == CommonAppsRegistry.Viber) ? "Viber" : "Skype", 
-						ntfy.tickerText.toString());
+						secondaryTitle, //(notificationBit == CommonAppsRegistry.Viber) ? "Viber" : "Skype", 
+						text);
 				}
 			}
 		}
 
 		PebbleService.setNotificationsMask(this, newBitmask);
 	}
-
+	
 	@Override
 	public void onNotificationPosted(StatusBarNotification arg0)
 	{
