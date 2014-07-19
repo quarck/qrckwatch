@@ -196,9 +196,6 @@ void notifications_update_callback(Layer * layer, GContext * ctx)
 	else if (weather_warning >= 1)
 		display_notification_icon(ctx, RESOURCE_ID_IMAGE_WARNING, &next_notification_icon_pos);
 
-	if (bt_disconnected)
-		display_notification_icon(ctx, RESOURCE_ID_IMAGE_NOBT, &next_notification_icon_pos);
-
 	if (notifications_bitmask & NOTIFICATION_CALENDAR)
 		display_notification_icon(ctx, RESOURCE_ID_IMAGE_CALENDAR, &next_notification_icon_pos);
 
@@ -246,6 +243,17 @@ void notifications_update_callback(Layer * layer, GContext * ctx)
 
 	if (notifications_bitmask & NOTIFICATION_UNKNOWN)
 		display_notification_icon(ctx, RESOURCE_ID_IMAGE_MORE_NOTIFICATIONS, &next_notification_icon_pos);
+
+	if (bt_disconnected)
+	{
+		GBitmap* icon = get_icon_for_id(RESOURCE_ID_IMAGE_NOBT);
+		if (icon != NULL)
+		{
+			graphics_draw_bitmap_in_rect(ctx, icon, GRect(28*3+2,28+2,28*2-2,28-2));
+		}
+	}
+
+
 }
 
 char pct_to_hex(int pct)
