@@ -110,6 +110,24 @@ public class Parser
 										ret.rising = Integer.valueOf(rising.getNodeValue());
 									}
 								}
+								else if (name.equals("yweather:location"))
+								{
+									NamedNodeMap attrs = channelChild.getAttributes();
+	
+									Node city = attrs.getNamedItem("city");
+									Node country = attrs.getNamedItem("country");
+
+									if (city != null)
+									{
+										Log.d("WEATHER", "city = " + city.getNodeValue());
+										ret.city = city.getNodeValue();
+									}
+									if (country != null)
+									{
+										Log.d("WEATHER", "country = " + country.getNodeValue());
+										ret.country = country.getNodeValue();
+									}
+								}
 								else if (name.equals("item"))
 								{
 									NodeList itemChilds = channelChild.getChildNodes();

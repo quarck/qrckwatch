@@ -36,6 +36,9 @@ public class Weather
 	public float pressure = 0.0f;
 	public int rising = 0;
 	
+	public String country = null;
+	public String city = null;
+
 	public String currentCondition = null;
 	public int currentCode = -1;
 	public float currentTemp = 0.0f;

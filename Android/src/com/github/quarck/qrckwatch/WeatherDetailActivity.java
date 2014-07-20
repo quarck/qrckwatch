@@ -106,10 +106,26 @@ public class WeatherDetailActivity extends Activity
 				
 				Weather w = wb.weather;
 				
-				sb.append("<h3>CURRENT:</h3><b>"); sb.append(WeatherCodes.getDesciption(w.currentCode)); sb.append("</b>,");
+				sb.append("<h3>");
+				
+				if (w.city != null)
+				{
+					sb.append(w.city);
+					if (w.country != null)
+					{
+						sb.append("/"); 
+						sb.append(w.country);
+					}
+					sb.append(":");
+				}
+				else
+				{
+					sb.append("Current:");
+				}
+
+				sb.append("</h3><b>"); sb.append(WeatherCodes.getDesciption(w.currentCode)); sb.append("</b>,");
 				sb.append(" "); sb.append(w.currentTemp); 
 				sb.append("&deg; <i>[real feel: "); sb.append(w.windChill); sb.append("&deg;]</i> <br/>");
-
 				
 				sb.append("Wind: &#10138;"); sb.append(w.windDirection);
 				sb.append("&deg;, "); sb.append(w.windSpeed); sb.append(" km/h<br/>");
@@ -118,8 +134,7 @@ public class WeatherDetailActivity extends Activity
 				sb.append("Pressure: "); sb.append(w.pressure); sb.append("mb<br/>");
 				sb.append("Visibility: "); sb.append(w.visibility); sb.append(" km<br/>");
 				
-	
-				sb.append("<br/><h3>FORECAST:</h3>");
+				sb.append("<br/><h3>Forecast:</h3>");
 				
 				for (int idx=0; idx< w.forecasts.size(); idx++)
 				{

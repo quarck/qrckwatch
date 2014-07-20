@@ -94,6 +94,7 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 	// Need to be static because they're used by the system later.
 	static char time_text[] = "00:00";
 	static char date_text[] = "Xxxxxxxxx 00";
+	int8_t new_bt_disconnected = 0;
 
 	char *time_format;
 
@@ -124,12 +125,19 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 
 	text_layer_set_text(text_time_layer, time_text);
 
-	bt_disconnected = bluetooth_connection_service_peek() ? 0 : 1; 
+	new_bt_disconnected = bluetooth_connection_service_peek() ? 0 : 1; 
 
 	if (time(NULL) - last_bt_update > BT_DISCONNECTED_TIMEOUT) // 7.5 mins
 	{
-		bt_disconnected = 1;
+		new_bt_disconnected = 1;
 	}
+
+	if (bt_disconnected != new_bt_disconnected)
+	{
+		send_request(); // force it to send us an update
+	}
+
+	bt_disconnected = new_bt_disconnected;
 
 	display_indicators();
 	
@@ -254,8 +262,6 @@ void notifications_update_callback(Layer * layer, GContext * ctx)
 			graphics_draw_bitmap_in_rect(ctx, icon, GRect(28*3+2,28+2,28*2-2,28-2));
 		}
 	}
-
-
 }
 
 char pct_to_hex(int pct)
