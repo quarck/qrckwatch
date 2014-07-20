@@ -8,6 +8,8 @@
 
 #define DEFAULT_WEATHER_CODE 127
 
+#define BT_DISCONNECTED_TIMEOUT 450
+
 Window *window;
 TextLayer *text_date_layer;
 TextLayer *text_time_layer;
@@ -124,7 +126,7 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 
 	bt_disconnected = bluetooth_connection_service_peek() ? 0 : 1; 
 
-	if (time(NULL) - last_bt_update > 450) // 7.5 mins
+	if (time(NULL) - last_bt_update > BT_DISCONNECTED_TIMEOUT) // 7.5 mins
 	{
 		bt_disconnected = 1;
 	}
@@ -502,7 +504,7 @@ void send_request()
 {
 	DictionaryIterator *iterator = NULL;
 	app_message_outbox_begin(&iterator);
-	dict_write_uint8(iterator, 100, 0); // some unused code -- we just need to send a 'ping' to app, without any real data
+	dict_write_uint8(iterator, MSG_REQUEST_WATCHFACE_STATUS, 0); // some unused code -- we just need to send a 'ping' to app, without any real data
 	app_message_outbox_send();
 }
 
@@ -529,7 +531,7 @@ void handle_init(void)
 	for (idx = 0; idx < NUM_ICONS; ++idx)
 		notification_icons[idx] = NULL;
 
-	last_bt_update = time(NULL);
+	last_bt_update = time(NULL)-BT_DISCONNECTED_TIMEOUT+10;
 
 	window = window_create();
 	window_stack_push(window, true /* Animated */ );
