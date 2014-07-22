@@ -98,6 +98,9 @@ public class CommonAppsRegistry
 	
 	public static int getMaskBitForPackage(String packageName)
 	{
+		if (packageName.equals("com.android.systemui"))
+			return 0;
+		
 		if (packages.containsKey(packageName))
 			return packages.get(packageName);
 		return Unknown;
