@@ -39,17 +39,25 @@ import com.getpebble.android.kit.PebbleKit;
 public class NotificationReceiverService2 extends NotificationListenerService
 {
 	public static final String TAG = "NotificationReceiverService";
+
+	public static int dismissedMask = 0;
+	
+	public static NotificationReceiverService2 instance = null;
 	
 	@Override
 	public void onCreate()
 	{
 		super.onCreate();
 		Lw.d(TAG, "onCreate()");
+		
+		instance = this;
 	}
 
 	@Override
 	public void onDestroy()
 	{
+		instance = null;
+		
 		Lw.d(TAG, "onDestroy (??)");
 		super.onDestroy();
 	}
@@ -72,6 +80,33 @@ public class NotificationReceiverService2 extends NotificationListenerService
 		}
 
 		PebbleService.checkInitialized(this);
+
+		int notificationBit = CommonAppsRegistry.getMaskBitForPackage(updNotification.getPackageName());
+		
+		dismissedMask = dismissedMask & ~notificationBit; // received/removed notification -- clear dismissal bit 
+		
+		if (isAdded)
+		{
+			if (notificationBit == CommonAppsRegistry.Viber || notificationBit == CommonAppsRegistry.Skype)
+			{
+				Notification ntfy = updNotification.getNotification();
+				
+				if (ntfy != null)
+				{
+			        NotificationParser parser = new NotificationParser(this, ntfy);
+
+			        String secondaryTitle = parser.title;
+			        String text = parser.text.trim();
+
+			        if (ntfy.tickerText != null && (text == null || text.trim().length() == 0)) 
+			        {
+			                text = ntfy.tickerText.toString();
+			        }
+
+			        PebbleService.sendNotificationToPebble(this, secondaryTitle, text);
+				}
+			}
+		}
 
 		StatusBarNotification[] notifications = null;
 
@@ -105,44 +140,14 @@ public class NotificationReceiverService2 extends NotificationListenerService
 
 				newBitmask |= CommonAppsRegistry.getMaskBitForPackage(packageName);
 			}
+			
+			newBitmask = newBitmask & ~dismissedMask;
 		}
 		else
 		{
 			Lw.e(TAG, "Can't get list of notifications. WE HAVE NO PERMISSION!! ");
 		}
 		
-		if (isAdded)
-		{
-			int notificationBit = 
-					CommonAppsRegistry.getMaskBitForPackage(
-								updNotification.getPackageName());
-			
-			if (notificationBit == CommonAppsRegistry.Viber ||
-					notificationBit == CommonAppsRegistry.Skype)
-			//if (!updNotification.isOngoing() && updNotification.getNotification().vibrate != null)
-			{
-				Notification ntfy = updNotification.getNotification();
-				
-				if (ntfy != null)
-				{
-			        NotificationParser parser = new NotificationParser(this, ntfy);
-
-			        String secondaryTitle = parser.title;
-			        String text = parser.text.trim();
-
-			        if (ntfy.tickerText != null && (text == null || text.trim().length() == 0)) 
-			        {
-			                text = ntfy.tickerText.toString();
-			        }
-
-			        PebbleService.sendNotificationToPebble(
-						this, 
-						secondaryTitle, //(notificationBit == CommonAppsRegistry.Viber) ? "Viber" : "Skype", 
-						text);
-				}
-			}
-		}
-
 		PebbleService.setNotificationsMask(this, newBitmask);
 	}
 	
@@ -158,5 +163,84 @@ public class NotificationReceiverService2 extends NotificationListenerService
 	{
 		Lw.d(TAG, "Notification removed: " + arg0);
 		update(arg0, false);
+	}
+
+	public static void dismissNotifications(Context ctx, int level, int id)
+	{
+		if (level == Protocol.DismissLevelPhone)
+		{
+			try
+			{
+				int mask = dismissIdToMask(id);
+
+				StatusBarNotification[] notifications = instance.getActiveNotifications();
+
+				Lw.d(TAG, "Total number of notifications currently active: " + notifications.length);
+
+				for (StatusBarNotification notification : notifications)
+				{
+					Lw.d(TAG, "Checking notification" + notification);
+
+					if (notification.isOngoing())
+						continue;
+					
+					String packageName = notification.getPackageName();
+					Lw.d(TAG, "Package name is " + packageName);
+
+					int appBit = CommonAppsRegistry.getMaskBitForPackage(packageName);
+					
+					if ((mask & appBit) != 0)
+					{
+						Lw.d(TAG, "Dismissing notification with package " + packageName);
+						instance.cancelNotification(packageName, notification.getTag(), notification.getId());
+					}
+				}
+				
+				if (mask != 0)
+					PebbleService.sendDismissalConfirmation(ctx, level, id);
+			}
+			catch (NullPointerException ex)
+			{
+				Lw.e(TAG, "Got exception while obtaining list of notifications, have no permissions!");
+			}
+			
+			PebbleService.sendDismissalConfirmation(ctx, level, id);
+		}
+		else if (level == Protocol.DismissLevelWatch)
+		{
+			int mask = dismissIdToMask(id);
+			dismissedMask = dismissedMask | mask;
+			if (mask != 0)
+				PebbleService.sendDismissalConfirmation(ctx, level, id);
+		}
+	}
+	
+	private static int dismissIdToMask(int id)
+	{
+		int mask = 0;
+		
+		switch (id)
+		{
+		case Protocol.DismissableItemViber:
+			mask = CommonAppsRegistry.Viber; 
+			break;
+		case Protocol.DismissableItemGmail:
+			mask = CommonAppsRegistry.GMail;
+			break;
+		case Protocol.DismissableItemCalendar:
+			mask = CommonAppsRegistry.Calendar;
+			break;
+		case Protocol.DismissableItemMail:
+			mask = CommonAppsRegistry.Email;
+			break;
+		case Protocol.DismissableItemEverything:
+			mask = CommonAppsRegistry.Viber
+					| CommonAppsRegistry.GMail
+					| CommonAppsRegistry.Calendar
+					| CommonAppsRegistry.Email;
+			break;
+		}
+		
+		return mask;
 	}
 }

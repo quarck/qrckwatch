@@ -39,11 +39,13 @@ static void window_load(Window * window)
 {
 	menu_items_watch[DISMISSABLE_ITEM_VIBER] = (SimpleMenuItem)  { .title = "Viber", .callback = dismiss_watch_callback, };
 	menu_items_watch[DISMISSABLE_ITEM_GMAIL] = 	(SimpleMenuItem) { .title = "Gmail", .callback = dismiss_watch_callback, };
+	menu_items_watch[DISMISSABLE_ITEM_MAIL] = 	(SimpleMenuItem) { .title = "Mail", .callback = dismiss_watch_callback, };
 	menu_items_watch[DISMISSABLE_ITEM_CALENDAR] = (SimpleMenuItem) { .title = "Calendar", .callback = dismiss_watch_callback, };
 	menu_items_watch[DISMISSABLE_ITEM_EVERYTHING] = (SimpleMenuItem) { .title = "** Everything **", .callback = dismiss_watch_callback, };
 
 	menu_items_phone[DISMISSABLE_ITEM_VIBER] = (SimpleMenuItem)  { .title = "Viber", .callback = dismiss_phone_callback, };
 	menu_items_phone[DISMISSABLE_ITEM_GMAIL] = 	(SimpleMenuItem) { .title = "Gmail", .callback = dismiss_phone_callback, };
+	menu_items_phone[DISMISSABLE_ITEM_MAIL] = 	(SimpleMenuItem) { .title = "Mail", .callback = dismiss_phone_callback, };
 	menu_items_phone[DISMISSABLE_ITEM_CALENDAR] = (SimpleMenuItem) { .title = "Calendar", .callback = dismiss_phone_callback, };
 	menu_items_phone[DISMISSABLE_ITEM_EVERYTHING] = (SimpleMenuItem) { .title = "** Everything **", .callback = dismiss_phone_callback, };
 

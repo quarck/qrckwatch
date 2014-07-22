@@ -21,15 +21,26 @@ public class DataReceiver extends BroadcastReceiver
 	public void receiveData(final Context context, final int transactionId, final PebbleDictionary data)
 	{
 		PebbleKit.sendAckToPebble(context, transactionId);
-
 		PebbleService.gotPacketFromPebble(context, data);
+	}
+
+	private void receiveDismissData(Context context, int transactionId, PebbleDictionary data)
+	{
+		PebbleKit.sendAckToPebble(context, transactionId);
+		int level = data.getUnsignedInteger(Protocol.EntryDismissLevel).intValue();
+		int id = data.getUnsignedInteger(Protocol.EntryDismissID).intValue();
+		
+		PebbleService.gotDismissPacketFromPebble(context, level, id);
 	}
 
 	public void onReceive(final Context context, final Intent intent) 
 	{
 		final UUID receivedUuid = (UUID) intent.getSerializableExtra(APP_UUID);
 
-		if (!receivedUuid.equals(PebbleService.pebbleAppUUID)) 
+		boolean isWatchApp = receivedUuid.equals(PebbleService.pebbleAppUUID);
+		boolean isDismissApp = !isWatchApp && receivedUuid.equals(PebbleService.dismissAppUUID); 
+		
+		if (!isWatchApp && !isDismissApp)
 		{
 			return;
 		}
@@ -44,7 +55,11 @@ public class DataReceiver extends BroadcastReceiver
 		try 
 		{
 			final PebbleDictionary data = PebbleDictionary.fromJson(jsonData);
-			receiveData(context, transactionId, data);
+			
+			if (isWatchApp)
+				receiveData(context, transactionId, data);
+			else if (isDismissApp)
+				receiveDismissData(context, transactionId, data);
 		} 
 		catch (JSONException e) 
 		{
@@ -52,5 +67,4 @@ public class DataReceiver extends BroadcastReceiver
 			return;
 		}
 	}
-
 }

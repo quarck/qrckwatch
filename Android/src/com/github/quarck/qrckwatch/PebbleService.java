@@ -22,6 +22,7 @@ public class PebbleService
 	private static final String TAG = "PebbleService";
 	
 	public final static UUID pebbleAppUUID = UUID.fromString("0b633775-2a83-4a28-9d0f-2c06ad154251");
+	public final static UUID dismissAppUUID = UUID.fromString("8b879156-26bf-4bb1-bbd0-5d9d3fccaac7");
 	
 	private static int notificationsMask = 0;
 	
@@ -166,6 +167,11 @@ public class PebbleService
 		sendUpdateToPebble(context);
 		checkInitialized(context);
 	}
+
+	public static void gotDismissPacketFromPebble(Context context, int level, int id)
+	{
+		NotificationReceiverService2.dismissNotifications(context, level, id);	
+	}
 	
 	public static void sendNotificationToPebble(Context ctx, String title, String body) 
 	{
@@ -184,5 +190,27 @@ public class PebbleService
 
 	    Lw.d(TAG, "About to send a modal alert to Pebble: " + notificationData);
 	    ctx.sendBroadcast(i);
+	}
+
+	public static void sendDismissalConfirmation(Context context, int level, int id)
+	{
+		if (!PebbleKit.isWatchConnected(context))
+			return;
+
+		synchronized (lock)
+		{
+			try 
+			{
+				PebbleDictionary data = new PebbleDictionary();
+				data.addUint8((byte)Protocol.EntryDismissLevel, (byte)level);
+				data.addUint8((byte)Protocol.EntryDismissID, (byte)id);
+					
+				PebbleKit.sendDataToPebble(context, dismissAppUUID, data);
+			}
+			catch (Exception ex)
+			{
+				Lw.d(TAG, "Exception while sending data to pebble");
+			}
+		}
 	}
 }
