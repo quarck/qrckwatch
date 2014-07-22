@@ -6,9 +6,9 @@ public class Protocol
     public static final int EntryChargeLevel = 2;
     public static final int EntryWeatherAlert = 3;
 
-    public static final int EntryDismissLevel = 200;
-    public static final int EntryDismissID = 201;
-    public static final int EntryDismissNumNotifications = 202;
+    public static final int EntryDismissLevel = 110;
+    public static final int EntryDismissID = 111;
+    public static final int EntryDismissNumNotifications = 112;
 
     public static final int DismissLevelWatch = 0;
     public static final int DismissLevelPhone = 1;

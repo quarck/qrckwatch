@@ -213,4 +213,14 @@ public class PebbleService
 			}
 		}
 	}
+
+	public static void setDismissalMask(Context context, int dismissedMask)
+	{
+		synchronized (lock)
+		{
+			notificationsMask = notificationsMask & ~dismissedMask;
+		}
+
+		sendUpdateToPebble(context);
+	}
 }

@@ -82,12 +82,22 @@ void received_data(DictionaryIterator *received, void *context)
 	if (entry != NULL)
 	{
 		level = entry->value->uint8;
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "has got level: %d", (int)level);
+	}
+	else
+	{
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "NO LEVEL");
 	}
 	
 	entry = dict_find(received, ENTRY_DISMISS_ID); 
 	if (entry != NULL)
 	{
 		idx = entry->value->uint8;
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "idx: %d", (int)idx);
+	}
+	else
+	{
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "NO ID");
 	}
 
 	if (idx < NUM_DISMISSABLE_ITEMS)

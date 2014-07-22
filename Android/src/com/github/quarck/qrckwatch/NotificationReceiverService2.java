@@ -210,6 +210,9 @@ public class NotificationReceiverService2 extends NotificationListenerService
 		{
 			int mask = dismissIdToMask(id);
 			dismissedMask = dismissedMask | mask;
+			
+			PebbleService.setDismissalMask(instance, dismissedMask);
+
 			if (mask != 0)
 				PebbleService.sendDismissalConfirmation(ctx, level, id);
 		}
@@ -240,6 +243,8 @@ public class NotificationReceiverService2 extends NotificationListenerService
 					| CommonAppsRegistry.Email;
 			break;
 		}
+		
+		Lw.d(TAG, "ID to mask: " + id + " mask + " + mask);
 		
 		return mask;
 	}
