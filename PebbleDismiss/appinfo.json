@@ -1,0 +1,17 @@
+{
+  "uuid": "8b879156-26bf-4bb1-bbd0-5d9d3fccaac7",
+  "shortName": "Dismiss",
+  "longName": "Dismiss",
+  "companyName": "QRCK DEV",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": []
+  }
+}
