@@ -195,9 +195,6 @@ public class NotificationReceiverService2 extends NotificationListenerService
 						instance.cancelNotification(packageName, notification.getTag(), notification.getId());
 					}
 				}
-				
-				if (mask != 0)
-					PebbleService.sendDismissalConfirmation(ctx, level, id);
 			}
 			catch (NullPointerException ex)
 			{
@@ -213,8 +210,7 @@ public class NotificationReceiverService2 extends NotificationListenerService
 			
 			PebbleService.setDismissalMask(instance, dismissedMask);
 
-			if (mask != 0)
-				PebbleService.sendDismissalConfirmation(ctx, level, id);
+			PebbleService.sendDismissalConfirmation(ctx, level, id);
 		}
 	}
 	

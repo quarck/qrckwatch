@@ -27,11 +27,19 @@ void send_request(bool isWatch, uint8_t id)
 static void dismiss_watch_callback(int index, void *ctx)
 {
 	send_request(true, index);
+
+	SimpleMenuItem *menu_item = &menu_items_watch[index];
+	menu_item->subtitle = "Sent";
+	layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer)); 
 }
 
 static void dismiss_phone_callback(int index, void *ctx)
 {
 	send_request(false, index);
+
+	SimpleMenuItem *menu_item = &menu_items_phone[index];
+	menu_item->subtitle = "Sent";
+	layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer)); 
 }
 
 // This initializes the menu upon window load
@@ -115,6 +123,7 @@ void received_data(DictionaryIterator *received, void *context)
 int main(void)
 {
 	// setup communication
+	app_comm_set_sniff_interval(SNIFF_INTERVAL_REDUCED);
 	app_message_register_inbox_received(received_data);
 	app_message_open(124, 50);
 
@@ -131,6 +140,7 @@ int main(void)
 	window_stack_push(window, true);
 
 	app_event_loop();
+	app_comm_set_sniff_interval(SNIFF_INTERVAL_NORMAL);
 
 	window_destroy(window);
 }

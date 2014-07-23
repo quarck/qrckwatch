@@ -279,12 +279,21 @@ char pct_to_hex(int pct)
 void display_indicators()
 {
 	static char watch_charge_text[] = "?";
-	static char phone_charge_text[] = "?";
+	static char phone_charge_text[] = "??";
 
 	const char *weather_cd = NULL;
 
-	phone_charge_text[0] = pct_to_hex(phone_charge_level);
-	watch_charge_text[0] = pct_to_hex(watch_charge_level);
+	int level = watch_charge_level; 
+	if (level == 100) 
+		level = 90;
+	watch_charge_text[0] = '0' + (level/10);
+
+	level = phone_charge_level;
+	if (level == 100)
+		level = 99;
+
+	phone_charge_text[0] = '0' + (level/10);
+	phone_charge_text[1] = '0' + (level%10);
 
 	switch (weather_code)
 	{
@@ -595,7 +604,7 @@ void handle_init(void)
 	layer_add_child(window_layer, text_layer_get_layer(weather_status_layer));
 
 	// Phone battery layer 
-	phone_batt_layer = text_layer_create(GRect(110, 68, 14, 18));
+	phone_batt_layer = text_layer_create(GRect(117, 68, 14, 18));
 	text_layer_set_text_alignment(phone_batt_layer, GTextAlignmentRight);
 	text_layer_set_text_color(phone_batt_layer, GColorWhite);
 	text_layer_set_background_color(phone_batt_layer, GColorClear);
@@ -605,7 +614,7 @@ void handle_init(void)
 	layer_add_child(window_layer, text_layer_get_layer(phone_batt_layer));
 
 	// Watch battery layer
-	watch_batt_layer = text_layer_create(GRect(124, 68, 14, 18));
+	watch_batt_layer = text_layer_create(GRect(128, 68, 14, 18));
 	text_layer_set_text_alignment(watch_batt_layer, GTextAlignmentRight);
 	text_layer_set_text_color(watch_batt_layer, GColorWhite);
 	text_layer_set_background_color(watch_batt_layer, GColorClear);
