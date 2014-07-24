@@ -2,17 +2,19 @@
 
 #include "../../Pebble/src/protocol.h"
 
-#define NUM_MENU_SECTIONS 2
+static Window *level1_window;
+static SimpleMenuLayer *level1_menu_layer;
+static SimpleMenuSection level1_menu_sections[1];
+static SimpleMenuItem level1_menu_items[NUM_DISMISSABLE_ITEMS];
 
-static Window *window;
+#define LEVEL2_MENU_ITEM_WATCH 0
+#define LEVEL2_MENU_ITEM_PHONE 1
+static Window *level2_window;
+static SimpleMenuLayer *level2_menu_layer;
+static SimpleMenuSection level2_menu_sections[1];
+static SimpleMenuItem level2_menu_items[2];
 
-static SimpleMenuLayer *simple_menu_layer;
-
-static SimpleMenuSection menu_sections[NUM_MENU_SECTIONS];
-
-static SimpleMenuItem menu_items_watch[NUM_DISMISSABLE_ITEMS];
-static SimpleMenuItem menu_items_phone[NUM_DISMISSABLE_ITEMS];
-
+static int current_dismiss_index = 100;
 
 void send_request(bool isWatch, uint8_t id)
 {
@@ -24,59 +26,59 @@ void send_request(bool isWatch, uint8_t id)
 }
 
 
-static void dismiss_watch_callback(int index, void *ctx)
+static void dismiss_level1_callback(int index, void *ctx)
 {
-	send_request(true, index);
-
-	SimpleMenuItem *menu_item = &menu_items_watch[index];
-	menu_item->subtitle = "Sent";
-	layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer)); 
+	current_dismiss_index = index;
+	window_stack_push(level2_window, true);
 }
 
-static void dismiss_phone_callback(int index, void *ctx)
+static void dismiss_level2_callback(int index, void *ctx)
 {
-	send_request(false, index);
-
-	SimpleMenuItem *menu_item = &menu_items_phone[index];
-	menu_item->subtitle = "Sent";
-	layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer)); 
+	send_request(index == LEVEL2_MENU_ITEM_WATCH, current_dismiss_index); 
+	window_stack_pop(true);
 }
 
-// This initializes the menu upon window load
-static void window_load(Window * window)
+static void level1_window_load(Window * window)
 {
-	menu_items_watch[DISMISSABLE_ITEM_VIBER] = (SimpleMenuItem)  { .title = "Viber", .callback = dismiss_watch_callback, };
-	menu_items_watch[DISMISSABLE_ITEM_GMAIL] = 	(SimpleMenuItem) { .title = "Gmail", .callback = dismiss_watch_callback, };
-	menu_items_watch[DISMISSABLE_ITEM_MAIL] = 	(SimpleMenuItem) { .title = "Mail", .callback = dismiss_watch_callback, };
-	menu_items_watch[DISMISSABLE_ITEM_CALENDAR] = (SimpleMenuItem) { .title = "Calendar", .callback = dismiss_watch_callback, };
-	menu_items_watch[DISMISSABLE_ITEM_EVERYTHING] = (SimpleMenuItem) { .title = "** Everything **", .callback = dismiss_watch_callback, };
+	level1_menu_items[DISMISSABLE_ITEM_VIBER] = (SimpleMenuItem)  { .title = "Viber", .callback = dismiss_level1_callback, };
+	level1_menu_items[DISMISSABLE_ITEM_GMAIL] = 	(SimpleMenuItem) { .title = "Gmail", .callback = dismiss_level1_callback, };
+	level1_menu_items[DISMISSABLE_ITEM_MAIL] = 	(SimpleMenuItem) { .title = "Mail", .callback = dismiss_level1_callback, };
+	level1_menu_items[DISMISSABLE_ITEM_CALENDAR] = (SimpleMenuItem) { .title = "Calendar", .callback = dismiss_level1_callback, };
+	level1_menu_items[DISMISSABLE_ITEM_EVERYTHING] = (SimpleMenuItem) { .title = "** Everything **", .callback = dismiss_level1_callback, };
 
-	menu_items_phone[DISMISSABLE_ITEM_VIBER] = (SimpleMenuItem)  { .title = "Viber", .callback = dismiss_phone_callback, };
-	menu_items_phone[DISMISSABLE_ITEM_GMAIL] = 	(SimpleMenuItem) { .title = "Gmail", .callback = dismiss_phone_callback, };
-	menu_items_phone[DISMISSABLE_ITEM_MAIL] = 	(SimpleMenuItem) { .title = "Mail", .callback = dismiss_phone_callback, };
-	menu_items_phone[DISMISSABLE_ITEM_CALENDAR] = (SimpleMenuItem) { .title = "Calendar", .callback = dismiss_phone_callback, };
-	menu_items_phone[DISMISSABLE_ITEM_EVERYTHING] = (SimpleMenuItem) { .title = "** Everything **", .callback = dismiss_phone_callback, };
-
-	menu_sections[0] =  (SimpleMenuSection) { .num_items = NUM_DISMISSABLE_ITEMS, .items = menu_items_watch, };
-	menu_sections[1] =  (SimpleMenuSection) { .num_items = NUM_DISMISSABLE_ITEMS, .items = menu_items_phone, .title = "From phone" };
+	level1_menu_sections[0] =  (SimpleMenuSection) { .num_items = NUM_DISMISSABLE_ITEMS, .items = level1_menu_items, };
 
 	Layer *window_layer = window_get_root_layer(window);
 	GRect bounds = layer_get_frame(window_layer);
 
-	// Initialize the simple menu layer
-	simple_menu_layer =
-	    simple_menu_layer_create(bounds, window, menu_sections,
-				     NUM_MENU_SECTIONS, NULL);
+	level1_menu_layer = simple_menu_layer_create(bounds, window, level1_menu_sections, 1, NULL);
 
-	// Add it to the window for display
-	layer_add_child(window_layer,
-			simple_menu_layer_get_layer(simple_menu_layer));
+	layer_add_child(window_layer, simple_menu_layer_get_layer(level1_menu_layer));
 }
 
-// Deinitialize resources on window unload that were initialized on window load
-void window_unload(Window * window)
+void level1_window_unload(Window * window)
 {
-	simple_menu_layer_destroy(simple_menu_layer);
+	simple_menu_layer_destroy(level1_menu_layer);
+}
+
+static void level2_window_load(Window * window)
+{
+	level2_menu_items[LEVEL2_MENU_ITEM_WATCH] = (SimpleMenuItem)  { .title = "Watch", .callback = dismiss_level2_callback, };
+	level2_menu_items[LEVEL2_MENU_ITEM_PHONE] = 	(SimpleMenuItem) { .title = "Phone", .callback = dismiss_level2_callback, };
+
+	level2_menu_sections[0] =  (SimpleMenuSection) { .num_items = 2, .items = level2_menu_items, };
+
+	Layer *window_layer = window_get_root_layer(window);
+	GRect bounds = layer_get_frame(window_layer);
+
+	level2_menu_layer = simple_menu_layer_create(bounds, window, level2_menu_sections, 1, NULL);
+
+	layer_add_child(window_layer, simple_menu_layer_get_layer(level2_menu_layer));
+}
+
+void level2_window_unload(Window * window)
+{
+	simple_menu_layer_destroy(level2_menu_layer);
 }
 
 void received_data(DictionaryIterator *received, void *context) 
@@ -107,17 +109,17 @@ void received_data(DictionaryIterator *received, void *context)
 	{
 		APP_LOG(APP_LOG_LEVEL_DEBUG, "NO ID");
 	}
-
+/*
 	if (idx < NUM_DISMISSABLE_ITEMS)
 	{
-		SimpleMenuItem *menu_item = (level == LEVEL_PHONE ? &menu_items_phone[idx] : &menu_items_watch[idx]);
+		SimpleMenuItem *menu_item = (level == LEVEL_PHONE ? &menu_items_phone[idx] : &level1_menu_items[idx]);
 
 		if (menu_item != NULL)
 		{
 			menu_item->subtitle = "Dismissed";
-			layer_mark_dirty(simple_menu_layer_get_layer(simple_menu_layer)); 
+			layer_mark_dirty(level1_menu_layer_get_layer(level1_menu_layer)); 
 		}
-	}
+	} */
 }
 
 int main(void)
@@ -127,20 +129,31 @@ int main(void)
 	app_message_register_inbox_received(received_data);
 	app_message_open(124, 50);
 
-	window = window_create();
+	level1_window = window_create();
 
 	// Setup the window handlers
-	window_set_window_handlers(window, 
+	window_set_window_handlers(level1_window, 
 			(WindowHandlers) 
 			{
-				.load = window_load,
-				.unload = window_unload,
+				.load = level1_window_load,
+				.unload = level1_window_unload,
 			});
 
-	window_stack_push(window, true);
+	level2_window = window_create();
+
+	// Setup the window handlers
+	window_set_window_handlers(level2_window, 
+			(WindowHandlers) 
+			{
+				.load = level2_window_load,
+				.unload = level2_window_unload,
+			});
+
+	window_stack_push(level1_window, true);
 
 	app_event_loop();
 	app_comm_set_sniff_interval(SNIFF_INTERVAL_NORMAL);
 
-	window_destroy(window);
+	window_destroy(level2_window);
+	window_destroy(level1_window);
 }
