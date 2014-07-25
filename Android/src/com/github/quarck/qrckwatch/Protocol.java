@@ -13,9 +13,13 @@ public class Protocol
     public static final int DismissLevelWatch = 0;
     public static final int DismissLevelPhone = 1;
 
-    public static final int DismissableItemViber = 0;
-    public static final int DismissableItemGmail = 1;
-    public static final int DismissableItemCalendar = 2;
-    public static final int DismissableItemMail = 3;
-    public static final int DismissableItemEverything = 4;
+    public static final int DismissableItemEverything = 0;
+    public static final int DismissableItemViber = 1;
+    public static final int DismissableItemGmail = 2;
+    public static final int DismissableItemCalendar = 3;
+    public static final int DismissableItemMail = 4; 
+    public static final int DismissableItemPhone = 5;
+    public static final int DismissableItemMessage = 6;
+    public static final int DismissableItemGoogleHangouts = 7;
+    public static final int DismissableItemSkype = 8;
 }

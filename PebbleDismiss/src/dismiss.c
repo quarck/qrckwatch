@@ -6,6 +6,7 @@ static Window *level1_window;
 static SimpleMenuLayer *level1_menu_layer;
 static SimpleMenuSection level1_menu_sections[1];
 static SimpleMenuItem level1_menu_items[NUM_DISMISSABLE_ITEMS];
+static GBitmap *level1_menu_icon_image[NUM_DISMISSABLE_ITEMS];
 
 #define LEVEL2_MENU_ITEM_WATCH 0
 #define LEVEL2_MENU_ITEM_PHONE 1
@@ -15,6 +16,7 @@ static SimpleMenuSection level2_menu_sections[1];
 static SimpleMenuItem level2_menu_items[2];
 
 static int current_dismiss_index = 100;
+
 
 void send_request(bool isWatch, uint8_t id)
 {
@@ -38,13 +40,25 @@ static void dismiss_level2_callback(int index, void *ctx)
 	window_stack_pop(true);
 }
 
+void do_menu(int id, int imgid, const char *title)
+{
+	level1_menu_icon_image[id] = gbitmap_create_with_resource(imgid); 
+	level1_menu_items[id] = 
+		(SimpleMenuItem) { .title = title, .callback = dismiss_level1_callback, .icon = level1_menu_icon_image[id], };
+}
+
 static void level1_window_load(Window * window)
 {
-	level1_menu_items[DISMISSABLE_ITEM_VIBER] = (SimpleMenuItem)  { .title = "Viber", .callback = dismiss_level1_callback, };
-	level1_menu_items[DISMISSABLE_ITEM_GMAIL] = 	(SimpleMenuItem) { .title = "Gmail", .callback = dismiss_level1_callback, };
-	level1_menu_items[DISMISSABLE_ITEM_MAIL] = 	(SimpleMenuItem) { .title = "Mail", .callback = dismiss_level1_callback, };
-	level1_menu_items[DISMISSABLE_ITEM_CALENDAR] = (SimpleMenuItem) { .title = "Calendar", .callback = dismiss_level1_callback, };
-	level1_menu_items[DISMISSABLE_ITEM_EVERYTHING] = (SimpleMenuItem) { .title = "** Everything **", .callback = dismiss_level1_callback, };
+	do_menu(DISMISSABLE_ITEM_EVERYTHING, RESOURCE_ID_IMAGE_MENU_ICON, "** Everything **");
+	
+	do_menu(DISMISSABLE_ITEM_VIBER, RESOURCE_ID_IMAGE_VIBER, "Viber");
+	do_menu(DISMISSABLE_ITEM_GMAIL, RESOURCE_ID_IMAGE_GMAIL, "Gmail");
+	do_menu(DISMISSABLE_ITEM_MAIL, RESOURCE_ID_IMAGE_EMAIL, "Mail");
+	do_menu(DISMISSABLE_ITEM_CALENDAR, RESOURCE_ID_IMAGE_CALENDAR, "Calendar");
+	do_menu(DISMISSABLE_ITEM_PHONE, RESOURCE_ID_IMAGE_PHONE, "Phone");
+	do_menu(DISMISSABLE_ITEM_MESSAGES, RESOURCE_ID_IMAGE_MESSAGE, "SMS");
+	do_menu(DISMISSABLE_ITEM_GOOGLEHANGOUTS, RESOURCE_ID_IMAGE_HANGOUTS, "Hangouts");
+	do_menu(DISMISSABLE_ITEM_SKYPE, RESOURCE_ID_IMAGE_SKYPE, "Skype");
 
 	level1_menu_sections[0] =  (SimpleMenuSection) { .num_items = NUM_DISMISSABLE_ITEMS, .items = level1_menu_items, };
 
@@ -58,6 +72,16 @@ static void level1_window_load(Window * window)
 
 void level1_window_unload(Window * window)
 {
+	gbitmap_destroy(level1_menu_icon_image[DISMISSABLE_ITEM_EVERYTHING]);
+	gbitmap_destroy(level1_menu_icon_image[DISMISSABLE_ITEM_VIBER]);
+	gbitmap_destroy(level1_menu_icon_image[DISMISSABLE_ITEM_GMAIL]);
+	gbitmap_destroy(level1_menu_icon_image[DISMISSABLE_ITEM_MAIL]);
+	gbitmap_destroy(level1_menu_icon_image[DISMISSABLE_ITEM_CALENDAR]);
+	gbitmap_destroy(level1_menu_icon_image[DISMISSABLE_ITEM_PHONE]);
+	gbitmap_destroy(level1_menu_icon_image[DISMISSABLE_ITEM_MESSAGES]);
+	gbitmap_destroy(level1_menu_icon_image[DISMISSABLE_ITEM_GOOGLEHANGOUTS]);
+	gbitmap_destroy(level1_menu_icon_image[DISMISSABLE_ITEM_SKYPE]);
+
 	simple_menu_layer_destroy(level1_menu_layer);
 }
 
@@ -109,29 +133,16 @@ void received_data(DictionaryIterator *received, void *context)
 	{
 		APP_LOG(APP_LOG_LEVEL_DEBUG, "NO ID");
 	}
-/*
-	if (idx < NUM_DISMISSABLE_ITEMS)
-	{
-		SimpleMenuItem *menu_item = (level == LEVEL_PHONE ? &menu_items_phone[idx] : &level1_menu_items[idx]);
-
-		if (menu_item != NULL)
-		{
-			menu_item->subtitle = "Dismissed";
-			layer_mark_dirty(level1_menu_layer_get_layer(level1_menu_layer)); 
-		}
-	} */
 }
 
 int main(void)
 {
-	// setup communication
 	app_comm_set_sniff_interval(SNIFF_INTERVAL_REDUCED);
 	app_message_register_inbox_received(received_data);
 	app_message_open(124, 50);
 
 	level1_window = window_create();
 
-	// Setup the window handlers
 	window_set_window_handlers(level1_window, 
 			(WindowHandlers) 
 			{
@@ -141,7 +152,6 @@ int main(void)
 
 	level2_window = window_create();
 
-	// Setup the window handlers
 	window_set_window_handlers(level2_window, 
 			(WindowHandlers) 
 			{

@@ -217,7 +217,7 @@ public class NotificationReceiverService2 extends NotificationListenerService
 	private static int dismissIdToMask(int id)
 	{
 		int mask = 0;
-		
+
 		switch (id)
 		{
 		case Protocol.DismissableItemViber:
@@ -231,12 +231,29 @@ public class NotificationReceiverService2 extends NotificationListenerService
 			break;
 		case Protocol.DismissableItemMail:
 			mask = CommonAppsRegistry.Email;
+			break;			
+		case Protocol.DismissableItemPhone:
+			mask = CommonAppsRegistry.Phone;
 			break;
+		case Protocol.DismissableItemMessage:
+			mask = CommonAppsRegistry.Messages;
+			break;
+		case Protocol.DismissableItemGoogleHangouts:
+			mask = CommonAppsRegistry.GoogleHangouts;
+			break;
+		case Protocol.DismissableItemSkype:
+			mask = CommonAppsRegistry.Skype;
+			break;			
+
 		case Protocol.DismissableItemEverything:
 			mask = CommonAppsRegistry.Viber
 					| CommonAppsRegistry.GMail
 					| CommonAppsRegistry.Calendar
-					| CommonAppsRegistry.Email;
+					| CommonAppsRegistry.Email
+					| CommonAppsRegistry.Phone
+					| CommonAppsRegistry.Messages
+					| CommonAppsRegistry.GoogleHangouts
+					| CommonAppsRegistry.Skype;
 			break;
 		}
 		

@@ -18,6 +18,46 @@
 		"type": "png",
 		"name": "IMAGE_MENU_ICON",
 		"file": "images/menu_icon.png"
+	}, 
+	{
+		"type": "png",
+		"name": "IMAGE_CALENDAR",
+		"file": "images/calendar.png"
+	},
+	{
+		"type": "png",
+		"name": "IMAGE_EMAIL",
+		"file": "images/email.png"
+	},
+	{
+		"type": "png",
+		"name": "IMAGE_GMAIL",
+		"file": "images/gmail.png"
+	},
+	{
+		"type": "png",
+		"name": "IMAGE_HANGOUTS",
+		"file": "images/hangouts.png"
+	},
+	{
+		"type": "png",
+		"name": "IMAGE_MESSAGE",
+		"file": "images/message.png"
+	},
+	{
+		"type": "png",
+		"name": "IMAGE_PHONE",
+		"file": "images/phone.png"
+	},
+	{
+		"type": "png",
+		"name": "IMAGE_SKYPE",
+		"file": "images/skype.png"
+	},
+	{
+		"type": "png", 
+		"name": "IMAGE_VIBER", 
+		"file": "images/viber.png"
 	}
     ]
   }
