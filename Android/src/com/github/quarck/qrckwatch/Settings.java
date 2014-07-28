@@ -40,11 +40,8 @@ public class Settings
 {
 	private Context context = null;
 
-	private static final String WEATHER_LOC1 = "wl1";
-	private static final String WEATHER_LOC2 = "wl2";
-	private static final String WEATHER_LOC3 = "wl3";
-	private static final String WEATHER_LOC4 = "wl4";
-	private static final String WEATHER_LOC5 = "wl5";
+	private static final String[] WEATHER_LOC = {"wl1", "wl2", "wl3", "wl4", "wl5"};
+	private static final String[] WEATHER_LOC_ENABLED = {"wle1", "wle2", "wle3", "wle4", "wle5"};
 	
 	private SharedPreferences prefs = null;
 
@@ -54,63 +51,27 @@ public class Settings
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	}
 
-	public int getWeatherLoc1()
+	public int getWeatherLoc(int idx)
 	{
-		return prefs.getInt(WEATHER_LOC1, 0); 
+		return prefs.getInt(WEATHER_LOC[idx], 0); 
 	}
 
-	public void setWeatherLoc1(int loc)
+	public void setWeatherLoc(int idx, int loc)
 	{
 		SharedPreferences.Editor editor = prefs.edit();
-		editor.putInt(WEATHER_LOC1, loc);		
-		editor.commit();
-	}
-
-	
-	public int getWeatherLoc2()
-	{
-		return prefs.getInt(WEATHER_LOC2, 0); 
-	}
-	public void setWeatherLoc2(int loc)
-	{
-		SharedPreferences.Editor editor = prefs.edit();
-		editor.putInt(WEATHER_LOC2, loc);		
+		editor.putInt(WEATHER_LOC[idx], loc);		
 		editor.commit();
 	}
 	
-
-	public int getWeatherLoc3()
+	public boolean getWeatherLocEnabled(int idx)
 	{
-		return prefs.getInt(WEATHER_LOC3, 0); 
+		return prefs.getBoolean(WEATHER_LOC_ENABLED[idx], false); 
 	}
-	public void setWeatherLoc3(int loc)
+
+	public void setWeatherLocEnabled(int idx, boolean val)
 	{
 		SharedPreferences.Editor editor = prefs.edit();
-		editor.putInt(WEATHER_LOC3, loc);		
-		editor.commit();
-	}
-	
-
-	public int getWeatherLoc4()
-	{
-		return prefs.getInt(WEATHER_LOC4, 0); 
-	}
-	public void setWeatherLoc4(int loc)
-	{
-		SharedPreferences.Editor editor = prefs.edit();
-		editor.putInt(WEATHER_LOC4, loc);		
-		editor.commit();
-	}
-	
-
-	public int getWeatherLoc5()
-	{
-		return prefs.getInt(WEATHER_LOC5, 0); 
-	}
-	public void setWeatherLoc5(int loc)
-	{
-		SharedPreferences.Editor editor = prefs.edit();
-		editor.putInt(WEATHER_LOC5, loc);		
+		editor.putBoolean(WEATHER_LOC_ENABLED[idx], val);		
 		editor.commit();
 	}
 
@@ -119,21 +80,13 @@ public class Settings
 		int[] ret = null;
 		
 		ArrayList<Integer> tmp = new ArrayList<Integer>();
-		
-		int loc = prefs.getInt(WEATHER_LOC1, 0);
-		if (loc != 0) tmp.add(loc);
-		
-		loc = prefs.getInt(WEATHER_LOC2, 0);
-		if (loc != 0) tmp.add(loc);
-		
-		loc = prefs.getInt(WEATHER_LOC3, 0);
-		if (loc != 0) tmp.add(loc);
-		
-		loc = prefs.getInt(WEATHER_LOC4, 0);
-		if (loc != 0) tmp.add(loc);
-		
-		loc = prefs.getInt(WEATHER_LOC5, 0);
-		if (loc != 0) tmp.add(loc);
+
+		for (int i=0; i<5; ++i)
+		{
+			int loc = prefs.getInt(WEATHER_LOC[i], 0);
+			if (loc != 0 && prefs.getBoolean(WEATHER_LOC_ENABLED[i], false)) 
+				tmp.add(loc);
+		}
 		
 		ret = new int[tmp.size()];
 		for (int idx = 0; idx < tmp.size(); idx ++)

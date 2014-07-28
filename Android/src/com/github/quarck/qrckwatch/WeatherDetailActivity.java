@@ -35,19 +35,7 @@ public class WeatherDetailActivity extends Activity
 		
 		int weatherLoc = 0;
 
-		switch (intent.getIntExtra("w", 0))
-		{
-		case 1: 
-			weatherLoc = settings.getWeatherLoc1(); break;
-		case 2: 
-			weatherLoc = settings.getWeatherLoc2(); break;
-		case 3: 
-			weatherLoc = settings.getWeatherLoc3(); break;
-		case 4: 
-			weatherLoc = settings.getWeatherLoc4(); break;
-		case 5: 
-			weatherLoc = settings.getWeatherLoc5(); break;
-		}
+		weatherLoc = settings.getWeatherLoc(intent.getIntExtra("w", 0));
 		
 		weatherBundle = WeatherService.getWeatherForLocation(weatherLoc);
 		

@@ -35,6 +35,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class MainActivity extends Activity
 {
@@ -42,12 +43,27 @@ public class MainActivity extends Activity
 
 	private Settings settings = null;
 	
-	private EditText textView1 = null;
-	private EditText textView2 = null;
-	private EditText textView3 = null;
-	private EditText textView4 = null;
-	private EditText textView5 = null;
+	private EditText textView[] = new EditText[5];
+	private ToggleButton toggleButton[] = new ToggleButton[5];
+	
 	private TextView textViewLastUpdated = null;
+
+	private void saveAll()
+	{
+		for (int i=0; i<5; ++i)
+		{
+			try
+			{
+				settings.setWeatherLoc(i, Integer.valueOf(textView[i].getText().toString()));
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+		
+		for (int i=0; i<5; ++i)
+			settings.setWeatherLocEnabled(i, toggleButton[i].isChecked());
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -60,56 +76,66 @@ public class MainActivity extends Activity
 
 		settings = new Settings(this);
 		
-		textView1 = ((EditText)findViewById(R.id.editText1));
-		textView2 = ((EditText)findViewById(R.id.editText2));
-		textView3 = ((EditText)findViewById(R.id.editText3));
-		textView4 = ((EditText)findViewById(R.id.editText4));
-		textView5 = ((EditText)findViewById(R.id.editText5));
-		
-		textView1.setText(Integer.toString(settings.getWeatherLoc1()));
-		textView2.setText(Integer.toString(settings.getWeatherLoc2()));
-		textView3.setText(Integer.toString(settings.getWeatherLoc3()));
-		textView4.setText(Integer.toString(settings.getWeatherLoc4()));
-		textView5.setText(Integer.toString(settings.getWeatherLoc5()));
+		textView[0] = ((EditText)findViewById(R.id.editText1));
+		textView[1] = ((EditText)findViewById(R.id.editText2));
+		textView[2] = ((EditText)findViewById(R.id.editText3));
+		textView[3] = ((EditText)findViewById(R.id.editText4));
+		textView[4] = ((EditText)findViewById(R.id.editText5));
+
+		toggleButton[0] = ((ToggleButton)findViewById(R.id.tbLoc1));
+		toggleButton[1] = ((ToggleButton)findViewById(R.id.tbLoc2));
+		toggleButton[2] = ((ToggleButton)findViewById(R.id.tbLoc3));
+		toggleButton[3] = ((ToggleButton)findViewById(R.id.tbLoc4));
+		toggleButton[4] = ((ToggleButton)findViewById(R.id.tbLoc5));
+
+		for (int i=0; i<5; ++i)
+			textView[i].setText(Integer.toString(settings.getWeatherLoc(i)));
+
+		for (int i=0; i<5; ++i)
+			toggleButton[i].setChecked(settings.getWeatherLocEnabled(i));
 		
 		textViewLastUpdated = ((TextView)findViewById(R.id.textViewLastUpdated));
 		
 		textViewLastUpdated.setText("Since last: "  + Long.toString(WeatherService.secondsSinceUpdate()));
 		
 		
-		((Button)findViewById(R.id.buttonSaveWeather)).setOnClickListener(
-				new OnClickListener() 
+		OnClickListener listener = 
+			new OnClickListener() 
+			{
+				@Override
+				public void onClick(View arg0)
 				{
-					@Override
-					public void onClick(View arg0)
-					{
-						settings.setWeatherLoc1(Integer.valueOf(textView1.getText().toString()));
-						settings.setWeatherLoc2(Integer.valueOf(textView2.getText().toString()));
-						settings.setWeatherLoc3(Integer.valueOf(textView3.getText().toString()));
-						settings.setWeatherLoc4(Integer.valueOf(textView4.getText().toString()));
-						settings.setWeatherLoc5(Integer.valueOf(textView5.getText().toString()));
-						
-						WeatherService.runWeatherUpdate(MainActivity.this);
-					}
+					saveAll();
+					WeatherService.runWeatherUpdate(MainActivity.this);
 				}
-			);
+			};
+		
+		((Button)findViewById(R.id.buttonSaveWeather)).setOnClickListener(listener);
+
+		((ToggleButton)findViewById(R.id.tbLoc1)).setOnClickListener(listener);
+		((ToggleButton)findViewById(R.id.tbLoc2)).setOnClickListener(listener);
+		((ToggleButton)findViewById(R.id.tbLoc3)).setOnClickListener(listener);
+		((ToggleButton)findViewById(R.id.tbLoc4)).setOnClickListener(listener);
+		((ToggleButton)findViewById(R.id.tbLoc5)).setOnClickListener(listener);
+		
 		
 		((Button)findViewById(R.id.buttonL1W)).setOnClickListener( 
-				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(1); } } 
+				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(0); } } 
 			);
 		((Button)findViewById(R.id.buttonL2W)).setOnClickListener( 
-				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(2); } } 
+				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(1); } } 
 			);
 		((Button)findViewById(R.id.buttonL3W)).setOnClickListener( 
-				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(3); } } 
+				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(2); } } 
 			);
 		((Button)findViewById(R.id.buttonL4W)).setOnClickListener( 
-				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(4); } } 
+				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(3); } } 
 			);
 		((Button)findViewById(R.id.buttonL5W)).setOnClickListener( 
-				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(5); } } 
+				new OnClickListener()  { @Override public void onClick(View arg0) { displayWeather(4); } } 
 			);
 
+		
 		((Button)findViewById(R.id.buttonCfg)).setOnClickListener( 
 				new OnClickListener()  { @Override public void onClick(View arg0) { configSecurity(); } } 
 			);

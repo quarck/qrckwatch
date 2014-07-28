@@ -67,17 +67,29 @@ public class Parser
 									if (chill != null)
 									{
 										Log.d("WEATHER", "chill = " + chill.getNodeValue());
-										ret.windChill = Float.valueOf(chill.getNodeValue());
+										try {
+											ret.windChill = Float.valueOf(chill.getNodeValue());
+										} catch (Exception ex) {
+											ret.windChill = 0;
+										}
 									}
 									if (direction != null)
 									{
 										Log.d("WEATHER", "direction = " + direction.getNodeValue());
-										ret.windDirection = Float.valueOf(direction.getNodeValue());
+										try {
+											ret.windDirection = Float.valueOf(direction.getNodeValue());
+										} catch (Exception ex) {
+											ret.windDirection = 0;
+										}
 									}
 									if (speed != null)
 									{
 										Log.d("WEATHER", "speed = " + speed.getNodeValue());
-										ret.windSpeed = Float.valueOf(speed.getNodeValue());
+										try {
+											ret.windSpeed = Float.valueOf(speed.getNodeValue());
+										} catch (Exception ex) {
+											ret.windSpeed = 0;
+										}
 									}
 								}
 								else if (name.equals("yweather:atmosphere"))
@@ -92,22 +104,38 @@ public class Parser
 									if (humidity != null)
 									{
 										Log.d("WEATHER", "humidity = " + humidity.getNodeValue());
-										ret.humidity = Float.valueOf(humidity.getNodeValue());
+										try {
+											ret.humidity = Float.valueOf(humidity.getNodeValue());
+										} catch (Exception ex) {
+											ret.humidity = 0;
+										}
 									}
 									if (visibility != null)
 									{
 										Log.d("WEATHER", "visibility = " + visibility.getNodeValue());
-										ret.visibility = Float.valueOf(visibility.getNodeValue());
+										try {
+											ret.visibility = Float.valueOf(visibility.getNodeValue()); 
+										} catch (Exception ex) {
+											ret.visibility = 0;
+										}
 									}
 									if (pressure != null)
 									{
 										Log.d("WEATHER", "pressure = " + pressure.getNodeValue());
-										ret.pressure = Float.valueOf(pressure.getNodeValue());
+										try {
+											ret.pressure = Float.valueOf(pressure.getNodeValue());
+										} catch (Exception ex) {
+											ret.pressure = 0;
+										}
 									}
 									if (rising != null)
 									{
 										Log.d("WEATHER", "rising = " + rising.getNodeValue());
-										ret.rising = Integer.valueOf(rising.getNodeValue());
+										try {
+											ret.rising = Integer.valueOf(rising.getNodeValue());
+										} catch (Exception ex) {
+											ret.rising = 0;
+										}
 									}
 								}
 								else if (name.equals("yweather:location"))
@@ -147,17 +175,28 @@ public class Parser
 										    if (text != null)
 										    {
 												Log.d("WEATHER", "text = " + text.getNodeValue());
-												ret.currentCondition = text.getNodeValue();
+												try {
+													ret.currentCondition = text.getNodeValue();
+												} catch (Exception ex) {
+												}
 										    }
 											if (code != null)
 											{
 												Log.d("WEATHER", "code = " + code.getNodeValue());
-												ret.currentCode = Integer.valueOf(code.getNodeValue());
+												try {
+													ret.currentCode = Integer.valueOf(code.getNodeValue());
+												} catch (Exception ex) {
+													ret.currentCode = 0;
+												}
 											}
 											if (temp != null)
 											{
 												Log.d("WEATHER", "temp = " + temp.getNodeValue());
-												ret.currentTemp = Float.valueOf(temp.getNodeValue());
+												try {
+													ret.currentTemp = Float.valueOf(temp.getNodeValue());
+												} catch (Exception ex) {
+													ret.currentTemp = 0;
+												}
 											}
 										}
 										else if (itemChild.getNodeName().equals("yweather:forecast"))
@@ -181,22 +220,38 @@ public class Parser
 											if (code != null)
 											{
 												Log.d("WEATHER", "code = " + code.getNodeValue());
-												df.code = Integer.valueOf(code.getNodeValue());
+												try {
+													df.code = Integer.valueOf(code.getNodeValue());
+												} catch (Exception ex) {
+													df.code = 0;
+												}												
 											}
 											if (low != null)
 											{
 												Log.d("WEATHER", "low = " + low.getNodeValue());
-												df.tempLow = Float.valueOf(low.getNodeValue());
+												try {
+													df.tempLow = Float.valueOf(low.getNodeValue());
+												} catch (Exception ex) {
+													df.tempLow = 0;
+												}
 											}
 											if (high != null)
 											{
 												Log.d("WEATHER", "high = " + high.getNodeValue());
-												df.tempHigh = Float.valueOf(high.getNodeValue());
+												try {
+													df.tempHigh = Float.valueOf(high.getNodeValue());
+												} catch (Exception ex) {
+													df.tempHigh = 0;
+												}
 											}
 											if (date != null)
 											{
 												Log.d("WEATHER", "date = " + date.getNodeValue());
-												df.date = ParseDate(date.getNodeValue());
+												try {
+													df.date = ParseDate(date.getNodeValue());
+												} catch (Exception ex) {
+													df.date = null;
+												}
 											}
 
 											ret.forecasts.add(df);
