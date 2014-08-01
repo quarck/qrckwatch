@@ -14,12 +14,10 @@ Window *window;
 TextLayer *text_date_layer;
 TextLayer *text_time_layer;
 
-Layer *top_line_layer;
-Layer *bottom_line_layer;
+Layer *watch_charge_layer;
+Layer *phone_charge_layer;
 
 TextLayer *weather_status_layer;
-TextLayer *phone_batt_layer;
-TextLayer *watch_batt_layer;
 
 int32_t notifications_bitmask = 0;
 int8_t phone_charge_level = -1; // values outside of 0...100 are interpreted as N/A
@@ -82,11 +80,43 @@ static GBitmap *get_icon_for_id(int id)
 }
 
 
-
-void line_layer_update_callback(Layer * layer, GContext * ctx)
+void phone_charge_layer_update_callback(Layer * layer, GContext * ctx)
 {
+	GRect bounds = layer_get_bounds(layer);
+	int level = phone_charge_level >= 100 ? 99 : phone_charge_level;
+
 	graphics_context_set_fill_color(ctx, GColorWhite);
-	graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
+	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+
+	bounds.origin.x += 1;
+	bounds.origin.y += 1;
+	bounds.size.w -= 2;
+	bounds.size.h -= 2;
+
+	bounds.size.h -= bounds.size.h * level / 99;
+	
+	graphics_context_set_fill_color(ctx, GColorBlack);
+	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+}
+
+void watch_charge_layer_update_callback(Layer * layer, GContext * ctx)
+{
+	GRect bounds = layer_get_bounds(layer);
+	int level = watch_charge_level >= 100 ? 90 : watch_charge_level;
+	int width = bounds.size.w * level / 90;
+
+	graphics_context_set_fill_color(ctx, GColorWhite);
+	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+
+	bounds.origin.x += 1;
+	bounds.origin.y += 1;
+	bounds.size.w -= 2;
+	bounds.size.h -= 2;
+
+	bounds.size.h -= bounds.size.h * level / 90;
+	
+	graphics_context_set_fill_color(ctx, GColorBlack);
+	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 }
 
 void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
@@ -105,8 +135,7 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 		tick_time = localtime(&now);
 	}
 
-	// TODO: Only update the date when it's changed.
-	strftime(date_text, sizeof(date_text), "%a  %B %e", tick_time);
+	strftime(date_text, sizeof(date_text), "%a, %e %b", tick_time);
 	text_layer_set_text(text_date_layer, date_text);
 
 	if (clock_is_24h_style()) 
@@ -278,22 +307,7 @@ char pct_to_hex(int pct)
 
 void display_indicators()
 {
-	static char watch_charge_text[] = "?";
-	static char phone_charge_text[] = "??";
-
 	const char *weather_cd = NULL;
-
-	int level = watch_charge_level; 
-	if (level == 100) 
-		level = 90;
-	watch_charge_text[0] = '0' + (level/10);
-
-	level = phone_charge_level;
-	if (level == 100)
-		level = 99;
-
-	phone_charge_text[0] = '0' + (level/10);
-	phone_charge_text[1] = '0' + (level%10);
 
 	switch (weather_code)
 	{
@@ -469,8 +483,8 @@ void display_indicators()
 	else
 		text_layer_set_text(weather_status_layer, "");
 
-	text_layer_set_text(phone_batt_layer, phone_charge_text);
-	text_layer_set_text(watch_batt_layer, watch_charge_text);
+	layer_mark_dirty(phone_charge_layer);
+	layer_mark_dirty(watch_charge_layer);
 }
 
 void received_data(DictionaryIterator *received, void *context) 
@@ -581,17 +595,15 @@ void handle_init(void)
 			    (FONT_KEY_ROBOTO_BOLD_SUBSET_49));
 	layer_add_child(window_layer, text_layer_get_layer(text_time_layer));
 
-	// Upper line layer
-	GRect top_line_frame = GRect(0, 94, 144, 1);
-	top_line_layer = layer_create(top_line_frame);
-	layer_set_update_proc(top_line_layer, line_layer_update_callback);
-	layer_add_child(window_layer, top_line_layer);
+	// watch charge layer line
+	watch_charge_layer = layer_create(GRect(132, 73, 7, 15));
+	layer_set_update_proc(watch_charge_layer, watch_charge_layer_update_callback);
+	layer_add_child(window_layer, watch_charge_layer);
 
-	// Bottom line layer
-	GRect bottom_line_frame = GRect(0, 146, 144, 1);
-	bottom_line_layer = layer_create(bottom_line_frame);
-	layer_set_update_proc(bottom_line_layer, line_layer_update_callback);
-	layer_add_child(window_layer, bottom_line_layer);
+	// phone charge layer line
+	phone_charge_layer = layer_create(GRect(120, 73, 7, 15));
+	layer_set_update_proc(phone_charge_layer, phone_charge_layer_update_callback);
+	layer_add_child(window_layer, phone_charge_layer);
 
 
 	// weather alarm layer
@@ -602,26 +614,6 @@ void handle_init(void)
 			    fonts_get_system_font
 			    (FONT_KEY_GOTHIC_18_BOLD));
 	layer_add_child(window_layer, text_layer_get_layer(weather_status_layer));
-
-	// Phone battery layer 
-	phone_batt_layer = text_layer_create(GRect(117, 68, 14, 18));
-	text_layer_set_text_alignment(phone_batt_layer, GTextAlignmentRight);
-	text_layer_set_text_color(phone_batt_layer, GColorWhite);
-	text_layer_set_background_color(phone_batt_layer, GColorClear);
-	text_layer_set_font(phone_batt_layer,
-			    fonts_get_system_font
-			    (FONT_KEY_GOTHIC_18));
-	layer_add_child(window_layer, text_layer_get_layer(phone_batt_layer));
-
-	// Watch battery layer
-	watch_batt_layer = text_layer_create(GRect(128, 68, 14, 18));
-	text_layer_set_text_alignment(watch_batt_layer, GTextAlignmentRight);
-	text_layer_set_text_color(watch_batt_layer, GColorWhite);
-	text_layer_set_background_color(watch_batt_layer, GColorClear);
-	text_layer_set_font(watch_batt_layer,
-			    fonts_get_system_font
-			    (FONT_KEY_GOTHIC_18));
-	layer_add_child(window_layer, text_layer_get_layer(watch_batt_layer));
 
 	// setup communication
 	app_message_register_inbox_received(received_data);
