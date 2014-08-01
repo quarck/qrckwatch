@@ -80,7 +80,7 @@ public class NotificationReceiverService2 extends NotificationListenerService
 		}
 
 		PebbleService.checkInitialized(this);
-
+		
 		int notificationBit = CommonAppsRegistry.getMaskBitForPackage(updNotification.getPackageName());
 		
 		dismissedMask = dismissedMask & ~notificationBit; // received/removed notification -- clear dismissal bit 
@@ -137,10 +137,16 @@ public class NotificationReceiverService2 extends NotificationListenerService
 				
 				String packageName = notification.getPackageName();
 				Lw.d(TAG, "Package name is " + packageName);
+				
+				if (CommonAppsRegistry.isIgnoredApp(packageName))
+				{
+					Lw.d(TAG, "Ignoring google play annoying notifications");
+					continue;
+				}
 
 				newBitmask |= CommonAppsRegistry.getMaskBitForPackage(packageName);
 			}
-			
+
 			newBitmask = newBitmask & ~dismissedMask;
 		}
 		else

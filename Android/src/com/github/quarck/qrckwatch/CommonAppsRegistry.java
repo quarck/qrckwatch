@@ -105,4 +105,11 @@ public class CommonAppsRegistry
 			return packages.get(packageName);
 		return Unknown;
 	}
+	
+	public static boolean isIgnoredApp(String packageName)
+	{
+		if (packageName.equalsIgnoreCase("com.android.vending"))
+			return true;
+		return false;
+	}
 }
