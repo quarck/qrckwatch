@@ -85,8 +85,13 @@ void phone_charge_layer_update_callback(Layer * layer, GContext * ctx)
 	GRect bounds = layer_get_bounds(layer);
 	int level = phone_charge_level >= 100 ? 99 : phone_charge_level;
 
+	bounds.origin.y += 1;
+	bounds.size.h -= 1;
+	
 	graphics_context_set_fill_color(ctx, GColorWhite);
 	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+
+	graphics_fill_rect(ctx, GRect(bounds.origin.x+2, bounds.origin.y-1, 3, 1), 0, GCornerNone);
 
 	bounds.origin.x += 1;
 	bounds.origin.y += 1;
@@ -103,10 +108,14 @@ void watch_charge_layer_update_callback(Layer * layer, GContext * ctx)
 {
 	GRect bounds = layer_get_bounds(layer);
 	int level = watch_charge_level >= 100 ? 90 : watch_charge_level;
-	int width = bounds.size.w * level / 90;
 
+	bounds.origin.y += 1;
+	bounds.size.h -= 1;
+	
 	graphics_context_set_fill_color(ctx, GColorWhite);
 	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+	
+	graphics_fill_rect(ctx, GRect(bounds.origin.x+2, bounds.origin.y-1, 3, 1), 0, GCornerNone);
 
 	bounds.origin.x += 1;
 	bounds.origin.y += 1;
@@ -596,12 +605,12 @@ void handle_init(void)
 	layer_add_child(window_layer, text_layer_get_layer(text_time_layer));
 
 	// watch charge layer line
-	watch_charge_layer = layer_create(GRect(132, 73, 7, 15));
+	watch_charge_layer = layer_create(GRect(132, 72, 7, 16));
 	layer_set_update_proc(watch_charge_layer, watch_charge_layer_update_callback);
 	layer_add_child(window_layer, watch_charge_layer);
 
 	// phone charge layer line
-	phone_charge_layer = layer_create(GRect(120, 73, 7, 15));
+	phone_charge_layer = layer_create(GRect(120, 72, 7, 16));
 	layer_set_update_proc(phone_charge_layer, phone_charge_layer_update_callback);
 	layer_add_child(window_layer, phone_charge_layer);
 
