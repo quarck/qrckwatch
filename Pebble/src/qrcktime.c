@@ -4,7 +4,11 @@
 #include "weathercodes.h"
 
 #define NUM_ICONS 21
-#define NUM_ICON_POSITIONS 10
+
+#define NUM_ICON_POSITIONS_LINE1 4
+#define NUM_ICON_POSITIONS_LINE2 5
+
+#define NUM_ICON_POSITIONS_TOTAL (NUM_ICON_POSITIONS_LINE1 + NUM_ICON_POSITIONS_LINE2)
 
 #define DEFAULT_WEATHER_CODE 127
 
@@ -14,6 +18,8 @@ Window *window;
 TextLayer *text_date_layer;
 TextLayer *text_time_layer;
 
+TextLayer *p_layer;
+TextLayer *w_layer;
 Layer *watch_charge_layer;
 Layer *phone_charge_layer;
 
@@ -186,7 +192,7 @@ void display_notification_icon(GContext* ctx, int id, int *current_pos)
 {
 	GRect bounds; 
 
-	if (!(*current_pos < NUM_ICON_POSITIONS))
+	if (!(*current_pos < NUM_ICON_POSITIONS_TOTAL))
 		return;
 
 	GBitmap* icon = get_icon_for_id(id);
@@ -196,14 +202,14 @@ void display_notification_icon(GContext* ctx, int id, int *current_pos)
 	bounds.size.w = 24;
 	bounds.size.h = 24;
 
-	if (*current_pos < NUM_ICON_POSITIONS / 2 )
+	if (*current_pos < NUM_ICON_POSITIONS_LINE1 )
 	{
 		bounds.origin.x = (*current_pos) * 28 + 2;
 		bounds.origin.y = 2;
 	}
 	else
 	{
-		bounds.origin.x = (*current_pos - NUM_ICON_POSITIONS/2) * 28 + 2;
+		bounds.origin.x = (*current_pos - NUM_ICON_POSITIONS_LINE1) * 28 + 2;
 		bounds.origin.y = 28 + 2;
 	}
   
@@ -492,6 +498,9 @@ void display_indicators()
 	else
 		text_layer_set_text(weather_status_layer, "");
 
+	text_layer_set_text(p_layer, "p");
+	text_layer_set_text(w_layer, "w");
+
 	layer_mark_dirty(phone_charge_layer);
 	layer_mark_dirty(watch_charge_layer);
 }
@@ -604,13 +613,30 @@ void handle_init(void)
 			    (FONT_KEY_ROBOTO_BOLD_SUBSET_49));
 	layer_add_child(window_layer, text_layer_get_layer(text_time_layer));
 
+
+	// P & W letters layer
+	p_layer = text_layer_create(GRect(120, 15, 24, 20));
+	text_layer_set_text_color(p_layer, GColorWhite);
+	text_layer_set_background_color(p_layer, GColorClear);
+	text_layer_set_font(p_layer,
+			    fonts_get_system_font(FONT_KEY_GOTHIC_14));
+	layer_add_child(window_layer, text_layer_get_layer(p_layer));
+
+	w_layer = text_layer_create(GRect(131, 15, 24, 20));
+	text_layer_set_text_color(w_layer, GColorWhite);
+	text_layer_set_background_color(w_layer, GColorClear);
+	text_layer_set_font(w_layer,
+			    fonts_get_system_font(FONT_KEY_GOTHIC_14));
+	layer_add_child(window_layer, text_layer_get_layer(w_layer));
+
+
 	// watch charge layer line
-	watch_charge_layer = layer_create(GRect(132, 72, 7, 16));
+	watch_charge_layer = layer_create(GRect(132, 4, 7, 16));
 	layer_set_update_proc(watch_charge_layer, watch_charge_layer_update_callback);
 	layer_add_child(window_layer, watch_charge_layer);
 
 	// phone charge layer line
-	phone_charge_layer = layer_create(GRect(120, 72, 7, 16));
+	phone_charge_layer = layer_create(GRect(120, 4, 7, 16));
 	layer_set_update_proc(phone_charge_layer, phone_charge_layer_update_callback);
 	layer_add_child(window_layer, phone_charge_layer);
 
