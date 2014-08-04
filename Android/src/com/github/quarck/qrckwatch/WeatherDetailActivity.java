@@ -77,6 +77,7 @@ public class WeatherDetailActivity extends Activity
 		{
 		}
 
+		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
