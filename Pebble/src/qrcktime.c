@@ -89,25 +89,34 @@ static GBitmap *get_icon_for_id(int id)
 void phone_charge_layer_update_callback(Layer * layer, GContext * ctx)
 {
 	GRect bounds = layer_get_bounds(layer);
-	int level = phone_charge_level >= 100 ? 99 : phone_charge_level;
-
-	bounds.origin.y += 1;
-	bounds.size.h -= 1;
 	
-	graphics_context_set_fill_color(ctx, GColorWhite);
-	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+	if (phone_charge_level != -1)
+	{
+		int level = phone_charge_level >= 100 ? 99 : phone_charge_level;
 
-	graphics_fill_rect(ctx, GRect(bounds.origin.x+2, bounds.origin.y-1, 3, 1), 0, GCornerNone);
+		bounds.origin.y += 1;
+		bounds.size.h -= 1;
+		
+		graphics_context_set_fill_color(ctx, GColorWhite);
+		graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 
-	bounds.origin.x += 1;
-	bounds.origin.y += 1;
-	bounds.size.w -= 2;
-	bounds.size.h -= 2;
+		graphics_fill_rect(ctx, GRect(bounds.origin.x+2, bounds.origin.y-1, 3, 1), 0, GCornerNone);
 
-	bounds.size.h -= bounds.size.h * level / 99;
-	
-	graphics_context_set_fill_color(ctx, GColorBlack);
-	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+		bounds.origin.x += 1;
+		bounds.origin.y += 1;
+		bounds.size.w -= 2;
+		bounds.size.h -= 2;
+
+		bounds.size.h -= bounds.size.h * level / 99;
+		
+		graphics_context_set_fill_color(ctx, GColorBlack);
+		graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+	}
+	else
+	{
+		graphics_context_set_fill_color(ctx, GColorBlack);
+		graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+	}
 }
 
 void watch_charge_layer_update_callback(Layer * layer, GContext * ctx)
@@ -182,6 +191,9 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 	}
 
 	bt_disconnected = new_bt_disconnected;
+
+	if (bt_disconnected)
+		phone_charge_level = -1; 
 
 	display_indicators();
 	
@@ -303,7 +315,7 @@ void notifications_update_callback(Layer * layer, GContext * ctx)
 		GBitmap* icon = get_icon_for_id(RESOURCE_ID_IMAGE_NOBT);
 		if (icon != NULL)
 		{
-			graphics_draw_bitmap_in_rect(ctx, icon, GRect(28*3+2,28+2,28*2-2,28-2));
+			graphics_draw_bitmap_in_rect(ctx, icon, GRect(2,2,28*2-2,28-2));
 		}
 	}
 }
@@ -498,7 +510,7 @@ void display_indicators()
 	else
 		text_layer_set_text(weather_status_layer, "");
 
-	text_layer_set_text(p_layer, "p");
+	text_layer_set_text(p_layer, (phone_charge_level != -1)?"p":"");
 	text_layer_set_text(w_layer, "w");
 
 	layer_mark_dirty(phone_charge_layer);
