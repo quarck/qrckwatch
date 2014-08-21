@@ -49,9 +49,9 @@ public class PebbleService
 		{
 			registerPebbleCallbacks(ctx);
 			
-			Alarm.setAlarmMillis(ctx, 5*60*1000); // send periodic status updates to pebble every 5 mins
+			Alarm.setAlarmMillis(ctx, 30*60*1000); // send periodic status updates to pebble every 30 mins. This is failback only - normally we should receive all the status updates ASAP and report them as they arriving. 
 			
-			WeatherServiceAlarm.setAlarmHours(ctx,  1);// run weather check every 1 hour(s)
+			WeatherServiceAlarm.setAlarmHours(ctx,  4);// run weather check every 4 hour(s)
 			
 			WeatherService.runWeatherUpdate(ctx);
 			

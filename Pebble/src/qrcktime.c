@@ -12,7 +12,7 @@
 
 #define DEFAULT_WEATHER_CODE 127
 
-#define BT_DISCONNECTED_TIMEOUT 450
+#define BT_DISCONNECTED_TIMEOUT 60 * 35 /* 35 mins */
 
 Window *window;
 TextLayer *text_date_layer;
