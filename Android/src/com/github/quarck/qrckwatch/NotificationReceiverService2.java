@@ -87,7 +87,9 @@ public class NotificationReceiverService2 extends NotificationListenerService
 		
 		if (isAdded)
 		{
-			if (notificationBit == CommonAppsRegistry.Viber || notificationBit == CommonAppsRegistry.Skype)
+			if (notificationBit == CommonAppsRegistry.Viber 
+					|| notificationBit == CommonAppsRegistry.Skype
+					|| notificationBit == CommonAppsRegistry.Email)
 			{
 				Notification ntfy = updNotification.getNotification();
 				
