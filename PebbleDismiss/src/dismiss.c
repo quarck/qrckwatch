@@ -8,15 +8,6 @@ static SimpleMenuSection level1_menu_sections[1];
 static SimpleMenuItem level1_menu_items[NUM_DISMISSABLE_ITEMS];
 static GBitmap *level1_menu_icon_image[NUM_DISMISSABLE_ITEMS];
 
-#define LEVEL2_MENU_ITEM_WATCH 0
-#define LEVEL2_MENU_ITEM_PHONE 1
-static Window *level2_window;
-static SimpleMenuLayer *level2_menu_layer;
-static SimpleMenuSection level2_menu_sections[1];
-static SimpleMenuItem level2_menu_items[2];
-
-static int current_dismiss_index = 100;
-
 
 void send_request(bool isWatch, uint8_t id)
 {
@@ -27,29 +18,51 @@ void send_request(bool isWatch, uint8_t id)
 	app_message_outbox_send();
 }
 
+int idx2id(int idx)
+{
+	int id = idx + 1;
+	if (idx == NUM_DISMISSABLE_ITEMS -1 )
+		id = DISMISSABLE_ITEM_EVERYTHING;
+	return id;
+}
+
+int id2idx(int id)
+{
+	int idx = id - 1;
+	if (id == DISMISSABLE_ITEM_EVERYTHING) 
+		idx = NUM_DISMISSABLE_ITEMS-1;
+	return idx;
+}
+
 
 static void dismiss_level1_callback(int index, void *ctx)
 {
-	current_dismiss_index = index;
-	window_stack_push(level2_window, true);
+	int id = idx2id(index);
+
+	if (id == DISMISSABLE_ITEM_HIDE_EVERYTHING)
+		send_request(true, DISMISSABLE_ITEM_EVERYTHING); 
+	else
+		send_request(false, id);
+
+	window_stack_pop_all(true);
 }
 
-static void dismiss_level2_callback(int index, void *ctx)
-{
-	send_request(index == LEVEL2_MENU_ITEM_WATCH, current_dismiss_index); 
-	window_stack_pop(true);
-}
 
 void do_menu(int id, int imgid, const char *title)
 {
-	level1_menu_icon_image[id] = gbitmap_create_with_resource(imgid); 
-	level1_menu_items[id] = 
-		(SimpleMenuItem) { .title = title, .callback = dismiss_level1_callback, .icon = level1_menu_icon_image[id], };
+	int pos = id2idx(id);
+	int iconid = id;
+
+	if (iconid == DISMISSABLE_ITEM_HIDE_EVERYTHING)
+		iconid = DISMISSABLE_ITEM_EVERYTHING;
+
+	level1_menu_icon_image[iconid] = gbitmap_create_with_resource(imgid); 
+	level1_menu_items[pos] = 
+		(SimpleMenuItem) { .title = title, .callback = dismiss_level1_callback, .icon = level1_menu_icon_image[iconid], };
 }
 
 static void level1_window_load(Window * window)
 {
-	do_menu(DISMISSABLE_ITEM_EVERYTHING, RESOURCE_ID_IMAGE_MENU_ICON, "** Everything **");
 	
 	do_menu(DISMISSABLE_ITEM_VIBER, RESOURCE_ID_IMAGE_VIBER, "Viber");
 	do_menu(DISMISSABLE_ITEM_GMAIL, RESOURCE_ID_IMAGE_GMAIL, "Gmail");
@@ -59,6 +72,9 @@ static void level1_window_load(Window * window)
 	do_menu(DISMISSABLE_ITEM_MESSAGES, RESOURCE_ID_IMAGE_MESSAGE, "SMS");
 	do_menu(DISMISSABLE_ITEM_GOOGLEHANGOUTS, RESOURCE_ID_IMAGE_HANGOUTS, "Hangouts");
 	do_menu(DISMISSABLE_ITEM_SKYPE, RESOURCE_ID_IMAGE_SKYPE, "Skype");
+	
+	do_menu(DISMISSABLE_ITEM_HIDE_EVERYTHING, RESOURCE_ID_IMAGE_MENU_ICON, "** Hide All **");
+	do_menu(DISMISSABLE_ITEM_EVERYTHING, RESOURCE_ID_IMAGE_MENU_ICON, "** Everything **");
 
 	level1_menu_sections[0] =  (SimpleMenuSection) { .num_items = NUM_DISMISSABLE_ITEMS, .items = level1_menu_items, };
 
@@ -83,26 +99,6 @@ void level1_window_unload(Window * window)
 	gbitmap_destroy(level1_menu_icon_image[DISMISSABLE_ITEM_SKYPE]);
 
 	simple_menu_layer_destroy(level1_menu_layer);
-}
-
-static void level2_window_load(Window * window)
-{
-	level2_menu_items[LEVEL2_MENU_ITEM_WATCH] = (SimpleMenuItem)  { .title = "Watch", .callback = dismiss_level2_callback, };
-	level2_menu_items[LEVEL2_MENU_ITEM_PHONE] = 	(SimpleMenuItem) { .title = "Phone", .callback = dismiss_level2_callback, };
-
-	level2_menu_sections[0] =  (SimpleMenuSection) { .num_items = 2, .items = level2_menu_items, };
-
-	Layer *window_layer = window_get_root_layer(window);
-	GRect bounds = layer_get_frame(window_layer);
-
-	level2_menu_layer = simple_menu_layer_create(bounds, window, level2_menu_sections, 1, NULL);
-
-	layer_add_child(window_layer, simple_menu_layer_get_layer(level2_menu_layer));
-}
-
-void level2_window_unload(Window * window)
-{
-	simple_menu_layer_destroy(level2_menu_layer);
 }
 
 void received_data(DictionaryIterator *received, void *context) 
@@ -150,20 +146,10 @@ int main(void)
 				.unload = level1_window_unload,
 			});
 
-	level2_window = window_create();
-
-	window_set_window_handlers(level2_window, 
-			(WindowHandlers) 
-			{
-				.load = level2_window_load,
-				.unload = level2_window_unload,
-			});
-
 	window_stack_push(level1_window, true);
 
 	app_event_loop();
 	app_comm_set_sniff_interval(SNIFF_INTERVAL_NORMAL);
 
-	window_destroy(level2_window);
 	window_destroy(level1_window);
 }
