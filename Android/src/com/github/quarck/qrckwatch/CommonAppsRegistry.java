@@ -47,6 +47,7 @@ public class CommonAppsRegistry
 	public static final int VK	= 0x2000;
 	public static final int Instgram = 0x4000;
 	public static final int Viber = 0x8000;
+	public static final int Telegram = 0x10000;
 	
 	private static HashMap<String, Integer> packages = new HashMap<String, Integer>();
 	
@@ -94,6 +95,8 @@ public class CommonAppsRegistry
 		packages.put("de.shapeservices.impluslite", Integer.valueOf(IM));
 		packages.put("de.shapeservices.implusfull", Integer.valueOf(IM));
 		packages.put("com.sec.chaton", Integer.valueOf(IM));
+		
+		packages.pub("org.telegram.messenger", Integer.valueOf(Telegram)
 	};
 	
 	public static int getMaskBitForPackage(String packageName)

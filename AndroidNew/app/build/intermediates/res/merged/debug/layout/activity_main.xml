@@ -1,0 +1,206 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.github.quarck.smartnotify.MainActivity" >
+
+    
+    <TextView
+        android:id="@+id/tvEnableService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enable Service:"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <ToggleButton
+        android:id="@+id/tbEnableService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignBaseline="@id/tvEnableService"
+        android:text="ToggleButton" />
+
+    
+    <TextView
+        android:id="@+id/textViewWeatherLocsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/tbEnableService"
+        android:text="Weather Locations:"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+ 
+
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/buttonL1W"
+        android:layout_toLeftOf="@+id/tbLoc1"
+        android:layout_alignBaseline="@+id/buttonL1W"
+        android:ems="10"
+        android:inputType="number"
+        android:text="0" />
+    
+    
+    <EditText
+        android:id="@+id/editText2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/buttonL2W"
+        android:layout_toLeftOf="@+id/tbLoc2"
+        android:layout_alignBaseline="@+id/buttonL2W"
+        android:ems="10"
+        android:inputType="number"
+        android:text="0" />
+
+    <EditText
+        android:id="@+id/editText3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/buttonL3W"
+        android:layout_toLeftOf="@+id/tbLoc3"
+        android:layout_alignBaseline="@+id/buttonL3W"
+        android:ems="10"
+        android:inputType="number"
+        android:text="0" />
+
+    <EditText
+        android:id="@+id/editText4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/buttonL4W"
+        android:layout_toLeftOf="@+id/tbLoc4"
+        android:layout_alignBaseline="@+id/buttonL4W"
+        android:ems="10"
+        android:inputType="number"
+        android:text="0" />
+
+    <EditText
+        android:id="@+id/editText5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/buttonL5W"
+        android:layout_toLeftOf="@+id/tbLoc5"
+        android:layout_alignBaseline="@+id/buttonL5W"
+        android:ems="10"
+        android:inputType="number"
+        android:text="0" />
+
+
+    <Button
+        android:id="@+id/buttonL1W"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textViewWeatherLocsLabel"        
+        android:text="Loc1" />
+
+    <Button
+        android:id="@+id/buttonL2W"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/buttonL1W" 
+        android:text="Loc2" />
+
+    <Button
+        android:id="@+id/buttonL3W"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/buttonL2W" 
+        android:text="Loc3" />
+
+    <Button
+        android:id="@+id/buttonL4W"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/buttonL3W"         
+        android:text="Loc4" />
+
+    <Button
+        android:id="@+id/buttonL5W"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/buttonL4W" 
+        android:text="Loc5" />
+
+     <ToggleButton
+        android:id="@+id/tbLoc1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/textViewWeatherLocsLabel"
+        android:text="ToggleButton" />
+     
+     <ToggleButton
+        android:id="@+id/tbLoc2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tbLoc1"
+        android:text="ToggleButton" />
+     
+     <ToggleButton
+        android:id="@+id/tbLoc3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tbLoc2"
+        android:text="ToggleButton" />
+     
+     <ToggleButton
+        android:id="@+id/tbLoc4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tbLoc3"
+        android:text="ToggleButton" />
+     
+     <ToggleButton
+        android:id="@+id/tbLoc5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tbLoc4"
+        android:text="ToggleButton" />
+ 
+     
+    <Button
+        android:id="@+id/buttonSaveWeather"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/buttonL5W"
+        android:text="Save / Update" />
+
+    <TextView
+        android:id="@+id/textViewLastUpdated"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="Weather Last Updated:"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/buttonCfg"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="Cfg" />
+
+    
+</RelativeLayout>

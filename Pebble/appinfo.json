@@ -101,6 +101,11 @@
       },
       {
         "type": "png",
+        "name": "IMAGE_TELEGRAM",
+        "file": "images/telegram.png"
+      },
+      {
+        "type": "png",
         "name": "IMAGE_WARNING",
         "file": "images/warning.png"
       }, 
