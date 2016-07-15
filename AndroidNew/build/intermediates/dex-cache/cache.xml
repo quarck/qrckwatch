@@ -2,11 +2,60 @@
 <items version="2" >
 
     <item
-        jar="C:\Users\spars\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-v4\19.1.0\support-v4-19.1.0.jar"
-        jumboMode="false"
+        jar="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
         revision="24.0.0"
-        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67">
-        <dex dex="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\pre-dexed\release\support-v4-19.1.0_3eccb15226d7a22d0d5e685c217e0ac22a619a1d.jar" />
+        sha1="13deedf9ebaed9975cb455e87addbbb2624602ab">
+        <dex dex="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_c3e413e0ff9d756799714a137e005cf0314b87d2\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\spars\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-stdlib\1.0.3\20738122b53399036c321eeb84687367757d622a\kotlin-stdlib-1.0.3.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="20738122b53399036c321eeb84687367757d622a">
+        <dex dex="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\transforms\dex\debug\folders\1000\10\kotlin-stdlib-1.0.3_ad3d81b499c6936889520032dbd31f17cf549229\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="c4a585565e83d47703844bf679298f448e016dff">
+        <dex dex="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_bdf28cb1bd71a43dc5aa17f9b3946adc11b911c1\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\spars\.gradle\caches\modules-2\files-2.1\org.jetbrains.kotlin\kotlin-runtime\1.0.3\10f40d016700cf4287e49fa1d51c2a8507e9b946\kotlin-runtime-1.0.3.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="10f40d016700cf4287e49fa1d51c2a8507e9b946">
+        <dex dex="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\transforms\dex\debug\folders\1000\10\kotlin-runtime-1.0.3_6b04249c46d5f5057ec87fc8b819c5d4a23478fb\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\exploded-aar\com.getpebble\pebblekit\3.0.0\jars\classes.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="bd72bf60a6e56573eecb0e6abf419fac2b1fc1e6">
+        <dex dex="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.getpebble-pebblekit-3.0.0_f468d67dfb33dad572fdf8c3948698fa3b0a46bc\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.0\jars\classes.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="ddde541c289c8b816a8f8fd6c325d80788c522a6">
+        <dex dex="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-v4-23.1.0_bb886ef1fa49e9e90faec270aa0e5b1538edcbb1\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.0\jars\libs\internal_impl-23.1.0.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="8716243bf04bae8d6c9ca94d27b9a9be7236f0a3">
+        <dex dex="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\transforms\dex\debug\folders\1000\10\internal_impl-23.1.0_31f34ca90ec1ce64d3155367b3d58c8e2dced9e3\classes.dex" />
+    </item>
+    <item
+        jar="C:\Users\spars\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\23.1.0\support-annotations-23.1.0.jar"
+        jumboMode="true"
+        revision="24.0.0"
+        sha1="92e3fc113ec3ee36b64603a38857b95700025633">
+        <dex dex="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\transforms\dex\debug\folders\1000\10\support-annotations-23.1.0_038b3d436e9f6278bc2404b76239eb24685400f4\classes.dex" />
     </item>
 
 </items>

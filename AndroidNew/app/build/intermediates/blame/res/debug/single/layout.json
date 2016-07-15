@@ -8,6 +8,10 @@
         "source": "C:\\Users\\spars\\Dropbox\\src\\Pebble\\qrckwatch\\AndroidNew\\app\\src\\main\\res\\layout\\activity_weather_detail.xml"
     },
     {
+        "merged": "C:\\Users\\spars\\Dropbox\\src\\Pebble\\qrckwatch\\AndroidNew\\app\\build\\intermediates\\res\\merged\\debug\\layout\\main.xml",
+        "source": "C:\\Users\\spars\\Dropbox\\src\\Pebble\\qrckwatch\\AndroidNew\\app\\build\\intermediates\\exploded-aar\\com.getpebble\\pebblekit\\3.0.0\\res\\layout\\main.xml"
+    },
+    {
         "merged": "C:\\Users\\spars\\Dropbox\\src\\Pebble\\qrckwatch\\AndroidNew\\app\\build\\intermediates\\res\\merged\\debug\\layout\\fragment_weather_detail.xml",
         "source": "C:\\Users\\spars\\Dropbox\\src\\Pebble\\qrckwatch\\AndroidNew\\app\\src\\main\\res\\layout\\fragment_weather_detail.xml"
     }

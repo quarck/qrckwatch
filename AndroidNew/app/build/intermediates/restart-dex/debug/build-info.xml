@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<instant-run
+    abi="x86"
+    api-level="23"
+    density="420dpi"
+    format="7"
+    timestamp="173198122871331"
+    token="-3718552104116629709" >
+
+    <task
+        name="javac"
+        duration="4475" />
+    <task
+        name="instant-run-dex"
+        duration="0" />
+    <task
+        name="instant-run-transform"
+        duration="1684" />
+    <task
+        name="verifier"
+        duration="481" />
+
+    <artifact
+        location="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\outputs\apk\app-debug.apk"
+        type="MAIN" />
+
+    <build timestamp="173198122871331" >
+        <artifact
+            location="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\outputs\apk\app-debug.apk"
+            type="MAIN" />
+    </build>
+
+</instant-run>

@@ -53,6 +53,8 @@ public class CommonAppsRegistry
 	
 	static {
 		packages.put("com.google.android.calendar", Integer.valueOf(Calendar));
+		packages.put("com.github.quarck.calnotify", Integer.valueOf(Calendar));
+
 		packages.put("com.android.calendar", Integer.valueOf(Calendar));
 		
 		packages.put("com.google.android.talk", Integer.valueOf(GoogleHangouts));
@@ -101,18 +103,9 @@ public class CommonAppsRegistry
 	
 	public static int getMaskBitForPackage(String packageName)
 	{
-		if (packageName.equals("com.android.systemui"))
-			return 0;
-		
 		if (packages.containsKey(packageName))
 			return packages.get(packageName);
-		return Unknown;
-	}
-	
-	public static boolean isIgnoredApp(String packageName)
-	{
-		if (packageName.equalsIgnoreCase("com.android.vending"))
-			return true;
-		return false;
+
+		return 0;
 	}
 }

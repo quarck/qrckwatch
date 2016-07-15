@@ -50,7 +50,9 @@ public class WeatherService extends IntentService
 	
 		for (int idx = 0; idx < locations.length; idx ++ )
 		{
-			String weatherUrl = "http://weather.yahooapis.com/forecastrss?w=" + locations[idx] + "&u=c";
+
+			String weatherUrl =
+					"https://query.yahooapis.com/v1/public/yql?q=select%20%2a%20from%20weather%2eforecast%20where%20woeid=" + locations[idx] + "%20and%20u=%27c%27&format=xml";
 
 			if (locations[idx] == 0)
 			{

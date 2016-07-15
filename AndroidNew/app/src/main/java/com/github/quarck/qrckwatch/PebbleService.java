@@ -22,8 +22,7 @@ public class PebbleService
 	private static final String TAG = "PebbleService";
 	
 	public final static UUID pebbleAppUUID = UUID.fromString("0b633775-2a83-4a28-9d0f-2c06ad154251");
-	public final static UUID dismissAppUUID = UUID.fromString("8b879156-26bf-4bb1-bbd0-5d9d3fccaac7");
-	
+
 	public final static int maxFailCount = 6;
 	
 	private static int notificationsMask = 0;
@@ -112,11 +111,15 @@ public class PebbleService
 		{
 			IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
 			Intent batteryStatus = context.registerReceiver(null, ifilter);
-			
-			int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-			int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-	
-			return  Math.round( level / (float)scale * 100.0f);
+
+			if (batteryStatus != null) {
+				int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+				int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+				return Math.round(level / (float) scale * 100.0f);
+			}
+
+			return -1;
 		}
 	}
 
@@ -168,19 +171,16 @@ public class PebbleService
 		sendUpdateToPebble(context);
 	}
 	
-	public static void gotPacketFromPebble(Context context, PebbleDictionary data)
+	public static void gotPacketFromPebble(Context context, PebbleDictionary data, boolean insideReceiver)
 	{
 		failCount = 0;
 		sendUpdateToPebble(context);
-		checkInitialized(context);
+
+		if (!insideReceiver)
+			checkInitialized(context);
 	}
 
-	public static void gotDismissPacketFromPebble(Context context, int level, int id)
-	{
-		NotificationReceiverService2.dismissNotifications(context, level, id);	
-	}
-	
-	public static void sendNotificationToPebble(Context ctx, String title, String body) 
+	public static void sendNotificationToPebble(Context ctx, String title, String body)
 	{
 	    final Intent i = new Intent("com.getpebble.action.SEND_NOTIFICATION");
 
@@ -199,37 +199,5 @@ public class PebbleService
 	    ctx.sendBroadcast(i);
 	    
 	    failCount = 0; // give it a try
-	}
-
-	public static void sendDismissalConfirmation(Context context, int level, int id)
-	{
-		if (!PebbleKit.isWatchConnected(context))
-			return;
-
-		synchronized (lock)
-		{
-			try 
-			{
-				PebbleDictionary data = new PebbleDictionary();
-				data.addUint8((byte)Protocol.EntryDismissLevel, (byte)level);
-				data.addUint8((byte)Protocol.EntryDismissID, (byte)id);
-					
-				PebbleKit.sendDataToPebble(context, dismissAppUUID, data);
-			}
-			catch (Exception ex)
-			{
-				Lw.d(TAG, "Exception while sending data to pebble");
-			}
-		}
-	}
-
-	public static void setDismissalMask(Context context, int dismissedMask)
-	{
-		synchronized (lock)
-		{
-			notificationsMask = notificationsMask & ~dismissedMask;
-		}
-
-		sendUpdateToPebble(context);
 	}
 }

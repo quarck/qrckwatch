@@ -57,7 +57,7 @@ public class Alarm extends BroadcastReceiver
 		Intent intent = new Intent(context, Alarm.class);
 		PendingIntent pendIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		alarmManager(context).setRepeating(AlarmManager.RTC_WAKEUP, 
+		alarmManager(context).setInexactRepeating(AlarmManager.RTC_WAKEUP,
 				System.currentTimeMillis() + repeatMillis, repeatMillis, pendIntent);
 	}
 
