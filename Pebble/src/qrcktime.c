@@ -6,7 +6,7 @@
 #define NUM_ICONS 22
 
 #define NUM_ICON_POSITIONS_LINE1 4
-#define NUM_ICON_POSITIONS_LINE2 5
+#define NUM_ICON_POSITIONS_LINE2 4
 
 #define NUM_ICON_POSITIONS_TOTAL (NUM_ICON_POSITIONS_LINE1 + NUM_ICON_POSITIONS_LINE2)
 
@@ -18,10 +18,8 @@ Window *window;
 TextLayer *text_date_layer;
 TextLayer *text_time_layer;
 
-TextLayer *p_layer;
-TextLayer *w_layer;
-Layer *watch_charge_layer;
-Layer *phone_charge_layer;
+#define NUM_TXT_LAYERS 7
+TextLayer *txt_layers[NUM_TXT_LAYERS];
 
 TextLayer *weather_status_layer;
 
@@ -87,63 +85,6 @@ static GBitmap *get_icon_for_id(int id)
 }
 
 
-void phone_charge_layer_update_callback(Layer * layer, GContext * ctx)
-{
-	GRect bounds = layer_get_bounds(layer);
-	
-	if (phone_charge_level != -1)
-	{
-		int level = phone_charge_level >= 100 ? 99 : phone_charge_level;
-
-		bounds.origin.y += 1;
-		bounds.size.h -= 1;
-		
-		graphics_context_set_fill_color(ctx, GColorWhite);
-		graphics_fill_rect(ctx, bounds, 0, GCornerNone);
-
-		graphics_fill_rect(ctx, GRect(bounds.origin.x+2, bounds.origin.y-1, 3, 1), 0, GCornerNone);
-
-		bounds.origin.x += 1;
-		bounds.origin.y += 1;
-		bounds.size.w -= 2;
-		bounds.size.h -= 2;
-
-		bounds.size.h -= bounds.size.h * level / 99;
-		
-		graphics_context_set_fill_color(ctx, GColorBlack);
-		graphics_fill_rect(ctx, bounds, 0, GCornerNone);
-	}
-	else
-	{
-		graphics_context_set_fill_color(ctx, GColorBlack);
-		graphics_fill_rect(ctx, bounds, 0, GCornerNone);
-	}
-}
-
-void watch_charge_layer_update_callback(Layer * layer, GContext * ctx)
-{
-	GRect bounds = layer_get_bounds(layer);
-	int level = watch_charge_level >= 100 ? 90 : watch_charge_level;
-
-	bounds.origin.y += 1;
-	bounds.size.h -= 1;
-	
-	graphics_context_set_fill_color(ctx, GColorWhite);
-	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
-	
-	graphics_fill_rect(ctx, GRect(bounds.origin.x+2, bounds.origin.y-1, 3, 1), 0, GCornerNone);
-
-	bounds.origin.x += 1;
-	bounds.origin.y += 1;
-	bounds.size.w -= 2;
-	bounds.size.h -= 2;
-
-	bounds.size.h -= bounds.size.h * level / 90;
-	
-	graphics_context_set_fill_color(ctx, GColorBlack);
-	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
-}
-
 void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 {
 	// Need to be static because they're used by the system later.
@@ -159,7 +100,7 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 	{
 		tick_time = localtime(&now);
 	}
-
+	
 	strftime(date_text, sizeof(date_text), "%a, %e %b", tick_time);
 	text_layer_set_text(text_date_layer, date_text);
 
@@ -239,7 +180,7 @@ void notifications_update_callback(Layer * layer, GContext * ctx)
 
 	graphics_context_set_fill_color(ctx, GColorBlack);
 	graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
-
+	
 	switch(weather_code)
 	{
 		case TORNADO: // 0, // 	tornado
@@ -257,7 +198,7 @@ void notifications_update_callback(Layer * layer, GContext * ctx)
 			weather_warning = 1;
 			break;
 	}
-
+  
 	if (weather_warning >= 3)
 		display_notification_icon(ctx, RESOURCE_ID_IMAGE_EMERGENCY, &next_notification_icon_pos);
 	else if (weather_warning >= 1)
@@ -314,14 +255,14 @@ void notifications_update_callback(Layer * layer, GContext * ctx)
 	if (notifications_bitmask & NOTIFICATION_UNKNOWN)
 		display_notification_icon(ctx, RESOURCE_ID_IMAGE_MORE_NOTIFICATIONS, &next_notification_icon_pos);
 
-	if (bt_disconnected)
+/*	if (bt_disconnected)
 	{
 		GBitmap* icon = get_icon_for_id(RESOURCE_ID_IMAGE_NOBT);
 		if (icon != NULL)
 		{
 			graphics_draw_bitmap_in_rect(ctx, icon, GRect(2,2,28*2-2,28-2));
 		}
-	}
+	} */
 }
 
 char pct_to_hex(int pct)
@@ -339,7 +280,10 @@ char pct_to_hex(int pct)
 void display_indicators()
 {
 	const char *weather_cd = NULL;
-
+  
+    static char watchBatt[8];
+    static char phoneBatt[8];
+  
 	switch (weather_code)
 	{
 		case TORNADO: // 0, // 	tornado
@@ -514,11 +458,73 @@ void display_indicators()
 	else
 		text_layer_set_text(weather_status_layer, "");
 
-	text_layer_set_text(p_layer, (phone_charge_level != -1)?"p":"");
-	text_layer_set_text(w_layer, "w");
+  if (phone_charge_level != -1) 
+  {
+    int idx = 0;
+    
+    if (phone_charge_level <= 30) 
+    {
+      phoneBatt[idx++] = '!';
+      phoneBatt[idx++] = '!';      
+    }
+    
+    phoneBatt[idx++] = 'p';
+    if (phone_charge_level >= 95)
+      phoneBatt[idx++] = 'F';
+    else 
+      phoneBatt[idx++] = '0' + ((phone_charge_level + 5) / 10);
+    
+    phoneBatt[idx++] = 0;
+    
+    text_layer_set_text(txt_layers[1], phoneBatt);  
+  }
+  else 
+  {
+    text_layer_set_text(txt_layers[1], "");
+  }
 
-	layer_mark_dirty(phone_charge_layer);
-	layer_mark_dirty(watch_charge_layer);
+  if (watch_charge_level != -1) 
+  {
+    int idx = 0;
+    
+    if (watch_charge_level < 30 && !watch_is_charging) 
+    {
+      watchBatt[idx++] = '!';
+      watchBatt[idx++] = '!';           
+    }
+    
+    if (watch_is_charging)
+      watchBatt[idx++] = '+';
+
+    watchBatt[idx++] = 'w';
+    
+    if (watch_charge_level >= 95)
+      watchBatt[idx++] = 'F';
+    else 
+      watchBatt[idx++] = '0' + ((watch_charge_level + 5) / 10);
+    
+    watchBatt[idx++] = 0;
+
+    text_layer_set_text(txt_layers[0], watchBatt);  
+  }
+  else 
+  {
+    text_layer_set_text(txt_layers[0], "w??");
+  }
+
+/*  for (int i =2; i < NUM_TXT_LAYERS; ++ i) 
+  {
+    if (i != 4)
+      text_layer_set_text(txt_layers[i], "ABCD");
+    else 
+      text_layer_set_text(txt_layers[i], "HELLO WORLD HELL YEAH");
+  } */
+  
+  if (bt_disconnected)
+  {
+    text_layer_set_text(txt_layers[4], " - NO BT CONN - ");
+  }
+  
 }
 
 void received_data(DictionaryIterator *received, void *context) 
@@ -532,7 +538,7 @@ void received_data(DictionaryIterator *received, void *context)
 	entry = dict_find(received, ENTRY_NOTIFICATIONS_BITMASK); 
 	if (entry != NULL)
 	{
-		notifications_bitmask = entry->value->int32;
+		notifications_bitmask = entry->value->int32;    
 	}
 	
 	entry = dict_find(received, ENTRY_CHARGE_LEVEL); 
@@ -559,7 +565,7 @@ void watch_battery_changed(BatteryChargeState charge)
 {
 	watch_charge_level = charge.charge_percent;
 	watch_is_charging = charge.is_charging;
-
+	
 	display_indicators();
 }
 
@@ -604,9 +610,7 @@ void handle_init(void)
 
 
 	// Notifications layer
-	notification_layer = layer_create( 
-			(GRect) { .origin = { 0, 0 }, 
-			 	   .size = { 168, 66 } });
+	notification_layer = layer_create( (GRect) { .origin = { 0, 0 }, .size = { 168, 66 } });
 
 	layer_set_update_proc(window_layer, notifications_update_callback);
 	layer_add_child(window_layer, notification_layer);
@@ -615,9 +619,7 @@ void handle_init(void)
 	text_date_layer = text_layer_create(GRect(8, 66, 114 - 8, 25));
 	text_layer_set_text_color(text_date_layer, GColorWhite);
 	text_layer_set_background_color(text_date_layer, GColorClear);
-	text_layer_set_font(text_date_layer,
-			    fonts_get_system_font
-			    (FONT_KEY_ROBOTO_CONDENSED_21));
+	text_layer_set_font(text_date_layer, fonts_get_system_font (FONT_KEY_ROBOTO_CONDENSED_21));
 	layer_add_child(window_layer, text_layer_get_layer(text_date_layer));
 
 	// Time layer
@@ -631,33 +633,29 @@ void handle_init(void)
 
 
 	// P & W letters layer
-	p_layer = text_layer_create(GRect(120, 15, 24, 20));
-	text_layer_set_text_color(p_layer, GColorWhite);
-	text_layer_set_background_color(p_layer, GColorClear);
-	text_layer_set_font(p_layer,
-			    fonts_get_system_font(FONT_KEY_GOTHIC_14));
-	layer_add_child(window_layer, text_layer_get_layer(p_layer));
-
-	w_layer = text_layer_create(GRect(131, 15, 24, 20));
-	text_layer_set_text_color(w_layer, GColorWhite);
-	text_layer_set_background_color(w_layer, GColorClear);
-	text_layer_set_font(w_layer,
-			    fonts_get_system_font(FONT_KEY_GOTHIC_14));
-	layer_add_child(window_layer, text_layer_get_layer(w_layer));
-
-
-	// watch charge layer line
-	watch_charge_layer = layer_create(GRect(132, 4, 7, 16));
-	layer_set_update_proc(watch_charge_layer, watch_charge_layer_update_callback);
-	layer_add_child(window_layer, watch_charge_layer);
-
-	// phone charge layer line
-	phone_charge_layer = layer_create(GRect(120, 4, 7, 16));
-	layer_set_update_proc(phone_charge_layer, phone_charge_layer_update_callback);
-	layer_add_child(window_layer, phone_charge_layer);
-
-
-	// weather alarm layer
+	
+  for (int i =0; i < NUM_TXT_LAYERS; ++ i ) 
+  {
+    if (i != 4) 
+    {
+      txt_layers[i] = text_layer_create(GRect(114, i*13, 28, 24));
+    	text_layer_set_text_color(txt_layers[i], GColorWhite);
+    	text_layer_set_background_color(txt_layers[i], GColorClear);
+    	text_layer_set_font(txt_layers[i], fonts_get_system_font(FONT_KEY_GOTHIC_14));
+      text_layer_set_text_alignment(txt_layers[i], GTextAlignmentRight);
+    	layer_add_child(window_layer, text_layer_get_layer(txt_layers[i]));      
+    }
+    else 
+    {
+      txt_layers[i] = text_layer_create(GRect(2, 52, 140, 24));
+      text_layer_set_text_color(txt_layers[i], GColorWhite);
+      text_layer_set_background_color(txt_layers[i], GColorClear);
+      text_layer_set_font(txt_layers[i], fonts_get_system_font(FONT_KEY_GOTHIC_14));
+      layer_add_child(window_layer, text_layer_get_layer(txt_layers[i])); 
+    }
+  }
+  
+  // weather alarm layer
 	weather_status_layer = text_layer_create(GRect(4, 146, 144-4, 18));
 	text_layer_set_text_color(weather_status_layer, GColorWhite);
 	text_layer_set_background_color(weather_status_layer, GColorClear);
@@ -672,15 +670,16 @@ void handle_init(void)
 
 	// battery state service 
 	battery_state_service_subscribe(watch_battery_changed);
-
+	
 	// Time callback setup
 	tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
 	handle_minute_tick(NULL, MINUTE_UNIT);
       	
-	// request everything. 
-	send_request();
 
 	watch_battery_changed(battery_state_service_peek());
+
+	// request everything. 
+	send_request();
 }
 
 int main(void)

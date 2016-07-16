@@ -5,7 +5,7 @@
         jar="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
         jumboMode="true"
         revision="24.0.0"
-        sha1="13deedf9ebaed9975cb455e87addbbb2624602ab">
+        sha1="b37cb26272e08edb9b475439dbda20ba38372e67">
         <dex dex="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_c3e413e0ff9d756799714a137e005cf0314b87d2\classes.dex" />
     </item>
     <item
@@ -19,7 +19,7 @@
         jar="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
         jumboMode="true"
         revision="24.0.0"
-        sha1="c4a585565e83d47703844bf679298f448e016dff">
+        sha1="3477ced96403575bd2e0a07c9e226bea7247a00c">
         <dex dex="C:\Users\spars\Dropbox\src\Pebble\qrckwatch\AndroidNew\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_bdf28cb1bd71a43dc5aa17f9b3946adc11b911c1\classes.dex" />
     </item>
     <item
